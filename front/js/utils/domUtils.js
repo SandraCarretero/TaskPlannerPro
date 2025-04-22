@@ -2,7 +2,7 @@ export const getDOMElements = () => {
   return {
     addButtonElement: document.getElementById('addTask'),
     addButtonMenuElement: document.getElementById('addTaskMenu'),
-    modalElement: document.getElementById('modal'),
+    modalTaskElement: document.getElementById('modal'),
     modalTitleElement: document.getElementById('modal-title'),
     cancelButtonElement: document.getElementById('cancel-button'),
     saveButtonElement: document.getElementById('save-button'),
@@ -101,4 +101,8 @@ export const createTaskCardElement = (taskData, onEdit, onDelete) => {
   deleteIcon.addEventListener('click', () => onDelete(taskCard, id));
 
   return taskCard;
+};
+
+export const capitalizeFirstLetter = str => {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };

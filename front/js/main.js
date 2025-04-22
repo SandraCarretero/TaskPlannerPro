@@ -12,7 +12,7 @@ import {
   validateTaskForm,
   getTaskFormData,
   clearTaskForm
-} from './utils/formUtils.js';
+} from './utils/taskForm.js';
 import {
   loadUserTasks,
   saveUserTasks,
@@ -155,12 +155,12 @@ const TaskManager = (() => {
       state.editingTaskCard = null;
     }
 
-    showElement(elements.modalElement);
+    showElement(elements.modalTaskElement);
   };
 
   const closeTaskModal = () => {
     const elements = getDOMElements();
-    hideElement(elements.modalElement);
+    hideElement(elements.modalTaskElement);
     clearTaskForm(elements);
   };
 
