@@ -1,132 +1,55 @@
-/* login.css */
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f5f7fa;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  max-height: 100dvh;
-}
-
 .login-container {
   display: flex;
+  align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  position: relative;
+  min-height: 100vh;
+  background-color: var(--color-gray-100);
+  padding: 20px;
 }
 
-.login-box,
-.register-box {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  width: 90dvw;
+.login-box, .register-box {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 30px;
+  width: 100%;
   max-width: 400px;
 }
 
-.logo {
-  display: flex;
-  width: 100%;
-  align-items: center;
+.login-box .logo {
+  margin-bottom: 30px;
   justify-content: center;
-  gap: 10px;
-  padding-block: 0;
-  margin-block: 5px;
-  padding-left: 0;
-  font-weight: bolder;
-  color: var(--color-primary);
-  font-size: 30px;
 }
 
-.logo img {
-  width: 35px;
-}
-
-.logo h1 {
-  font-size: 1.8rem;
-  margin: 0;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #4a5568;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-control:focus {
-  border-color: #3498db;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-}
-
-.remember-me {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.remember-me input {
-  margin-right: 0.5rem;
+.register-box h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--color-gray-800);
 }
 
 .login-btn {
   width: 100%;
-  padding: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 10px;
 }
 
 .register-section {
-  margin-top: 2rem;
+  margin-top: 24px;
   text-align: center;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
 }
 
 .register-section p {
-  margin-bottom: 0.5rem;
-  color: #718096;
-}
-
-.error-message {
-  color: var(--color-danger);
-  margin: 0.5rem 0;
+  margin-bottom: 12px;
+  color: var(--color-gray-600);
   font-size: 0.9rem;
-}
-
-.hidden {
-  display: none;
 }
 
 .form-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 1rem;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .form-buttons button {
-  width: 48%;
-}
-
-.wrong {
-  border-color: var(--color-danger);
-  background-color: var(--color-danger-transparent);
+  flex: 1;
 }

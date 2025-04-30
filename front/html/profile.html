@@ -7,7 +7,7 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
 
-    <title>Flowtask - perfil</title>
+    <title>Flowtask - Perfil</title>
 
     <link rel="shortcut icon" href="../img/icon.svg" type="image/x-icon" />
 
@@ -22,10 +22,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/sidebar.css" />
     <link rel="stylesheet" href="../css/profile.css" />
-
     <script defer type="module" src="../js/profile.js"></script>
   </head>
   <body>
@@ -43,135 +43,205 @@
             <span class="hidden-mobile">Tareas</span>
           </div>
         </a>
-        <a href="#">
+        <a href="events.html">
           <div class="nav-item">
-            <i class="fas fa-calendar"></i>
+            <i class="fas fa-calendar-check"></i>
             <span class="hidden-mobile">Eventos</span>
           </div>
         </a>
-
-        <div id="addTaskMenu" class="nav-item nav-plus hidden-desktop">
-          <i class="fa-solid fa-plus"></i>
-        </div>
-
         <a href="#">
           <div class="nav-item">
-            <i class="fas fa-calendar-alt"></i>
-            <span class="hidden-mobile">Calendario</span>
+            <i class="fas fa-comment"></i>
+            <span class="hidden-mobile">Chat</span>
           </div>
         </a>
-        <a href="./profile.html">
+        <a href="profile.html">
           <div class="nav-item active">
             <i class="fas fa-user"></i>
             <span class="hidden-mobile">Perfil</span>
           </div>
         </a>
       </div>
-      <div class="main-area main-area-profile">
-        <div class="tasks-area-header hidden-desktop">
+      <div class="main-area">
+        <div class="profile-area-header">
           <div class="logo hidden-desktop">
             <img src="../img/icon.svg" alt="" class="logo-img" />
             <span>Flowtask</span>
           </div>
+          <h1 id="title" class="title">Mi Perfil</h1>
         </div>
-        <main class="main-area profile-container">
-          <div class="avatar" id="user-avatar">AB</div>
-
-          <form id="profile-form">
-            <div class="form-group">
-              <label for="username">Nombre</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                required
-                disabled
-              />
+        <div class="profile-container">
+          <div class="profile-card">
+            <div class="profile-header">
+              <div class="profile-avatar-container">
+                <div id="profile-avatar" class="profile-avatar"></div>
+                <button id="change-avatar" class="change-avatar">
+                  <i class="fas fa-camera"></i>
+                </button>
+              </div>
+              <div class="profile-info">
+                <h2 id="profile-name">Nombre de Usuario</h2>
+                <p id="profile-email">usuario@example.com</p>
+                <p id="profile-role" class="profile-role">Usuario</p>
+              </div>
             </div>
-
-            <div class="form-group">
-              <label for="email">Correo electrónico</label>
-              <input type="email" id="email" name="email" required disabled />
-            </div>
-
-            <div class="form-group">
-              <label for="password">Contraseña</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                required
-                disabled
-              />
-            </div>
-          </form>
-
-          <div class="form-group form-group-btns">
-            <div>
-              <button id="edit-btn" class="btn edit-btn">Editar</button>
-              <button id="update-btn" class="btn update-btn" disabled>
-                Guardar
+            <div class="profile-actions">
+              <button id="edit-profile" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Editar Perfil
               </button>
-              <button id="delete-user" class="btn delete-btn">Eliminar</button>
+              <button id="change-password" class="btn btn-outline">
+                <i class="fas fa-key"></i> Cambiar Contraseña
+              </button>
+              <button id="logout" class="btn btn-outline danger">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+              </button>
             </div>
-            <button id="logout-profile" class="btn outline-btn">
-              <i class="fas fa-sign-out-alt"></i>Salir
-            </button>
           </div>
-        </main>
-        <div id="project-cards-container" class="project-cards-container">
-          <div class="project-card">
-            <div class="project-info">
-              <div class="icon-container">
-                <img
-                  src="https://img.icons8.com/ios-filled/50/briefcase.png"
-                  alt="Project Icon"
-                />
+          
+          <div id="admin-section" class="admin-section hidden">
+            <h2>Área de Administración</h2>
+            <div class="admin-cards">
+              <div class="admin-card">
+                <i class="fas fa-users"></i>
+                <h3>Usuarios</h3>
+                <p>Gestionar usuarios del sistema</p>
+                <button id="manage-users" class="btn btn-primary">Administrar</button>
               </div>
-              <div class="text-info">
-                <h4>Office Project</h4>
-                <p>23 Tasks</p>
+              <div class="admin-card">
+                <i class="fas fa-tasks"></i>
+                <h3>Tareas</h3>
+                <p>Gestionar todas las tareas</p>
+                <button id="manage-tasks" class="btn btn-primary">Administrar</button>
+              </div>
+              <div class="admin-card">
+                <i class="fas fa-calendar"></i>
+                <h3>Eventos</h3>
+                <p>Gestionar todos los eventos</p>
+                <button id="manage-events" class="btn btn-primary">Administrar</button>
+              </div>
+              <div class="admin-card">
+                <i class="fas fa-images"></i>
+                <h3>Fotos</h3>
+                <p>Gestionar todas las fotos</p>
+                <button id="manage-photos" class="btn btn-primary">Administrar</button>
               </div>
             </div>
-            <div class="progress-circle">
-              <svg width="50" height="50">
-                <circle
-                  cx="25"
-                  cy="25"
-                  r="22"
-                  stroke="#f3f3f3"
-                  stroke-width="5"
-                  fill="none"
-                />
-                <circle
-                  cx="25"
-                  cy="25"
-                  r="22"
-                  stroke="#f06292"
-                  stroke-width="5"
-                  fill="none"
-                  stroke-dasharray="138.2"
-                  stroke-dashoffset="41.46"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <div class="progress-text">70%</div>
+          </div>
+          
+          <div class="stats-section">
+            <h2>Mis Estadísticas</h2>
+            <div class="stats-cards">
+              <div class="stats-card">
+                <i class="fas fa-check-circle"></i>
+                <h3>Tareas Completadas</h3>
+                <p id="completed-tasks-count">0</p>
+              </div>
+              <div class="stats-card">
+                <i class="fas fa-spinner"></i>
+                <h3>Tareas en Progreso</h3>
+                <p id="progress-tasks-count">0</p>
+              </div>
+              <div class="stats-card">
+                <i class="fas fa-clock"></i>
+                <h3>Tareas Pendientes</h3>
+                <p id="pending-tasks-count">0</p>
+              </div>
+              <div class="stats-card">
+                <i class="fas fa-calendar-check"></i>
+                <h3>Eventos Programados</h3>
+                <p id="events-count">0</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Modal de confirmación -->
-    <div id="confirm-modal" class="modal hidden">
+    
+    <!-- Edit Profile Modal -->
+    <div class="modal hidden" id="edit-profile-modal">
       <div class="modal-content">
-        <h2>¿Eliminar usuario?</h2>
-        <p>
-          ¿Estás segura de que quieres eliminar tu cuenta? <br />
-          Esta acción no se puede deshacer.
-        </p>
-        <button id="confirm-delete" class="btn danger">Eliminar</button>
-        <button id="cancel-delete" class="btn btn-outline">Cancelar</button>
+        <div class="modal-header">
+          <h2>Editar Perfil</h2>
+          <button id="close-edit-profile" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form id="edit-profile-form">
+          <div class="form-group">
+            <label for="edit-name">Nombre</label>
+            <input type="text" id="edit-name" class="form-control" required />
+            <div class="error-message" id="error-name"></div>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" id="cancel-edit-profile" class="btn btn-outline">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Change Password Modal -->
+    <div class="modal hidden" id="change-password-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Cambiar Contraseña</h2>
+          <button id="close-change-password" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form id="change-password-form">
+          <div class="form-group">
+            <label for="current-password">Contraseña Actual</label>
+            <input type="password" id="current-password" class="form-control" required />
+            <div class="error-message" id="error-current-password"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="new-password">Nueva Contraseña</label>
+            <input type="password" id="new-password" class="form-control" required />
+            <div class="error-message" id="error-new-password"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="confirm-new-password">Confirmar Nueva Contraseña</label>
+            <input type="password" id="confirm-new-password" class="form-control" required />
+            <div class="error-message" id="error-confirm-new-password"></div>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" id="cancel-change-password" class="btn btn-outline">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Change Avatar Modal -->
+    <div class="modal hidden" id="change-avatar-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Cambiar Avatar</h2>
+          <button id="close-change-avatar" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form id="change-avatar-form">
+          <div class="form-group">
+            <label for="avatar-file">Seleccionar Imagen</label>
+            <input type="file" id="avatar-file" class="form-control" accept="image/*" required />
+            <div class="error-message" id="error-avatar-file"></div>
+          </div>
+          
+          <div class="avatar-preview-container">
+            <div id="avatar-preview" class="avatar-preview"></div>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" id="cancel-change-avatar" class="btn btn-outline">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Avatar</button>
+          </div>
+        </form>
       </div>
     </div>
   </body>

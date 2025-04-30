@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+
+    <title>Flowtask - Eventos</title>
+
+    <link rel="shortcut icon" href="../img/icon.svg" type="image/x-icon" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/sidebar.css" />
+    <link rel="stylesheet" href="../css/events.css" />
+    <script defer type="module" src="../js/events.js"></script>
+  </head>
+  <body>
+    <div class="main-content">
+      <div class="sidebar">
+        <a class="hidden-mobile">
+          <div class="logo">
+            <img src="../img/icon.svg" alt="" class="logo-img" />
+            <span>Flowtask</span>
+          </div>
+        </a>
+        <a href="../index.html">
+          <div class="nav-item">
+            <i class="fas fa-tasks"></i>
+            <span class="hidden-mobile">Tareas</span>
+          </div>
+        </a>
+        <a href="events.html">
+          <div class="nav-item active">
+            <i class="fas fa-calendar-check"></i>
+            <span class="hidden-mobile">Eventos</span>
+          </div>
+        </a>
+        
+        <div id="addEventMenu" class="nav-item nav-plus hidden-desktop">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+        <a href="#">
+          <div class="nav-item">
+            <i class="fas fa-comment"></i>
+            <span class="hidden-mobile">Chat</span>
+          </div>
+        </a>
+        <a href="profile.html">
+          <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span class="hidden-mobile">Perfil</span>
+          </div>
+        </a>
+      </div>
+      <div class="main-area">
+        <div class="events-area-header">
+          <div class="logo hidden-desktop">
+            <img src="../img/icon.svg" alt="" class="logo-img" />
+            <span>Flowtask</span>
+          </div>
+          <h1 id="title" class="title">Eventos de Nombre</h1>
+          <div class="buttons-container">
+            <div class="finished-filter">
+              <button class="button" id="finished-filter-btn">
+                <i class="fa-solid fa-filter"></i> Filtrar
+              </button>
+              <ul id="finished-options" class="finished-options hidden">
+                <li data-finished="all" class="finished-todas">
+                  <span class="finished-dot finished-todos"></span>Todos
+                </li>
+                <li data-finished="noFinished" class="finished-noFinished">
+                  <span class="finished-dot finished-noFinished"></span>Pendientes
+                </li>
+                <li data-finished="finished" class="finished-finished">
+                  <span class="finished-dot finished-finished"></span>Finalizados
+                </li>
+              </ul>
+            </div>
+            <button class="button" id="addEvent">
+              <i class="fa-solid fa-plus"></i>Nuevo evento
+            </button>
+          </div>
+          <div class="info">
+            <div class="info-card weather-card">
+              <div class="weather-temp">
+                <img src="" alt="" id="weather-icon" class="weather-icon" />
+                <span id="weather-temp">°C</span>
+              </div>
+            </div>
+            <a href="./profile.html">
+              <div class="profile">
+                <div id="avatar" class="avatar"></div>
+              </div>
+            </a>
+          </div>
+          
+        </div>
+        <div id="events-container" class="events-container">
+          <!-- Los eventos se cargarán aquí dinámicamente -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Event Detail Modal -->
+    <div class="modal hidden" id="event-modal">
+      <div class="event-detail">
+        <div class="detail-header">
+          <h2 id="modal-title">Nuevo evento</h2>
+          <div class="event-action-buttons">
+            <button id="cancel-button" class="btn btn-outline">Cancelar</button>
+            <button id="save-button" class="btn btn-primary">Guardar</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-title">Título</label>
+          <input type="text" id="event-title" class="form-control" />
+          <div class="error-message" id="error-title"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-start-date">Fecha y hora de inicio</label>
+          <input type="datetime-local" id="event-start-date" class="form-control" />
+          <div class="error-message" id="error-start-date"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-end-date">Fecha y hora de finalización</label>
+          <input type="datetime-local" id="event-end-date" class="form-control" />
+          <div class="error-message" id="error-end-date"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-location">Ubicación</label>
+          <input type="text" id="event-location" class="form-control" />
+          <div class="error-message" id="error-location"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-description">Descripción</label>
+          <textarea id="event-description" class="form-control"></textarea>
+          <div class="error-message" id="error-description"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Event Modal -->
+    <div id="delete-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>¿Eliminar evento?</h2>
+        <p>
+          ¿Estás seguro de que deseas eliminar este evento?<br />Esta acción no
+          se puede deshacer.
+        </p>
+        <div class="modal-actions">
+          <button id="confirm-delete" class="btn danger">Eliminar</button>
+          <button id="cancel-delete" class="btn btn-outline">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
