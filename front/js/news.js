@@ -20,7 +20,7 @@ export const loadNews = async (query = 'noticias') => {
 
       card.innerHTML = `
         <div class="news-content">
-          <h3>${article.title}</h3>
+          <h2>${article.title}</h2>
           <p>${article.description || 'Sin descripción.'}</p>
           <a href="${article.url}" target="_blank">Leer más</a>
         </div>

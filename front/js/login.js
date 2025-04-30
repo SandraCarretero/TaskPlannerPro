@@ -1,185 +1,183 @@
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const showRegisterBtn = document.getElementById('show-register');
-const cancelRegisterBtn = document.getElementById('cancel-register');
-const loginBox = document.getElementById('login-box');
-const registerBox = document.getElementById('register-box');
-const loginError = document.getElementById('login-error');
-const registerError = document.getElementById('register-error');
+// URL base para la API
+const API_URL = "http://localhost:3000/api"
 
-const newName = document.getElementById('new-name');
-const newEmail = document.getElementById('new-email');
-const newPassword = document.getElementById('new-password');
-const confirmPassword = document.getElementById('confirm-password');
+// Elementos DOM
+const loginForm = document.getElementById("login-form")
+const registerForm = document.getElementById("register-form")
+const loginBox = document.getElementById("login-box")
+const registerBox = document.getElementById("register-box")
+const showRegisterBtn = document.getElementById("show-register")
+const cancelRegisterBtn = document.getElementById("cancel-register")
+const loginError = document.getElementById("login-error")
+const registerError = document.getElementById("register-error")
 
-document.addEventListener('DOMContentLoaded', () => {
-  initUIHandlers();
-  checkSession();
-});
+// Mostrar formulario de registro
+showRegisterBtn.addEventListener("click", () => {
+  loginBox.classList.add("hidden")
+  registerBox.classList.remove("hidden")
+})
 
-const initUIHandlers = () => {
-  showRegisterBtn?.addEventListener('click', showRegisterForm);
-  cancelRegisterBtn?.addEventListener('click', cancelRegisterForm);
-  loginForm?.addEventListener('submit', handleLogin);
-  registerForm?.addEventListener('submit', handleRegister);
-};
+// Cancelar registro y volver al login
+cancelRegisterBtn.addEventListener("click", () => {
+  registerBox.classList.add("hidden")
+  loginBox.classList.remove("hidden")
 
-const showRegisterForm = () => {
-  registerBox?.classList.remove('hidden');
-  loginBox?.classList.add('hidden');
-};
+  // Limpiar formulario y errores
+  registerForm.reset()
+  clearRegisterErrors()
+})
 
-const cancelRegisterForm = () => {
-  registerBox?.classList.add('hidden');
-  registerForm?.reset();
-  registerError?.classList.add('hidden');
-  loginBox?.classList.remove('hidden');
-};
+// Manejar envío del formulario de login
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault()
 
-const handleLogin = e => {
-  e.preventDefault();
+  const email = document.getElementById("email").value
+  const password = document.getElementById("password").value
 
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    })
 
-  const user = getUsers().find(
-    u => u.email === email && u.password === password
-  );
+    const data = await response.json()
 
-  if (user) {
-    createSession(user);
-    redirectToHome();
-  } else {
-    document.getElementById('login-error')?.classList.remove('hidden');
-  }
-};
-
-const handleRegister = e => {
-  e.preventDefault();
-
-  const name = newName?.value.trim();
-  const email = newEmail?.value.trim();
-  const password = newPassword?.value;
-  const confirmPass = confirmPassword?.value;
-
-  resetFormErrors();
-
-  const { valid } = validateRegistration(
-    name,
-    email,
-    password,
-    confirmPass
-  );
-
-  if (!valid) return;
-
-  const newUser = {
-    name,
-    email,
-    password,
-    createdAt: new Date().toISOString()
-  };
-
-  saveUser(newUser);
-  createEmptyTaskList(email);
-  createSession(newUser);
-  redirectToHome();
-};
-
-const validateRegistration = (name, email, password, confirmPassword) => {
-  let valid = true;
-
-  if (!name) {
-    showError('new-name', 'El nombre no puede estar vacío');
-    valid = false;
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showError('new-email', 'Introduce un correo válido');
-    valid = false;
-  }
-
-  if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
-    showError(
-      'new-password',
-      'La contraseña debe tener al menos 6 caracteres, incluyendo letras y números'
-    );
-    valid = false;
-  }
-
-  if (password !== confirmPassword) {
-    showError('confirm-password', 'Las contraseñas no coinciden');
-    valid = false;
-  }
-
-  if (getUsers().some(u => u.email === email)) {
-    showError('new-email', 'El correo ya está en uso');
-    valid = false;
-  }
-
-  return { valid };
-};
-
-const getUsers = () => {
-  return JSON.parse(localStorage.getItem('users')) || [];
-};
-
-const saveUser = user => {
-  const users = getUsers();
-  users.push(user);
-  localStorage.setItem('users', JSON.stringify(users));
-};
-
-const createEmptyTaskList = email => {
-  localStorage.setItem(`tasks_${email}`, JSON.stringify({ tasks: [] }));
-};
-
-const createSession = user => {
-  const session = {
-    email: user.email,
-    name: user.name,
-    isLoggedIn: true,
-    timestamp: new Date().getTime()
-  };
-  sessionStorage.setItem('session', JSON.stringify(session));
-};
-
-const checkSession = () => {
-  const session = JSON.parse(sessionStorage.getItem('session'));
-  if (session?.isLoggedIn) {
-    redirectToHome();
-  }
-};
-
-const showError = (inputId, message) => {
-  const input = document.getElementById(inputId);
-  const error = document.getElementById(`error-${inputId}`);
-  input?.classList.add('wrong');
-  if (error) {
-    error.textContent = message;
-    error.classList.remove('hidden');
-  }
-};
-
-const resetFormErrors = () => {
-  document
-    .querySelectorAll('.form-control')
-    .forEach(input => input.classList.remove('wrong'));
-  [
-    'error-new-name',
-    'error-new-email',
-    'error-new-password',
-    'error-confirm-password'
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.textContent = '';
-      el.classList.add('hidden');
+    if (!response.ok) {
+      throw new Error(data.message || "Error al iniciar sesión")
     }
-  });
-  registerError?.classList.add('hidden');
-};
 
-const redirectToHome = () => {
-  window.location.href = '../index.html';
-};
+    // Guardar token en localStorage
+    localStorage.setItem("token", data.data.token)
+
+    // Redirigir a la página principal
+    window.location.href = "../index.html"
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error)
+    loginError.textContent = "Usuario o contraseña incorrectos"
+    loginError.classList.remove("hidden")
+  }
+})
+
+// Manejar envío del formulario de registro
+registerForm.addEventListener("submit", async (e) => {
+  e.preventDefault()
+
+  // Limpiar errores previos
+  clearRegisterErrors()
+
+  // Validar formulario
+  if (!validateRegisterForm()) {
+    return
+  }
+
+  const email = document.getElementById("new-email").value
+  const name = document.getElementById("new-name").value
+  const password = document.getElementById("new-password").value
+
+  try {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, name, password }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || "Error al registrar usuario")
+    }
+
+    // Guardar token en localStorage
+    localStorage.setItem("token", data.data.token)
+
+    // Redirigir a la página principal
+    window.location.href = "../index.html"
+  } catch (error) {
+    console.error("Error al registrar usuario:", error)
+    registerError.textContent = error.message || "Error al registrar usuario"
+    registerError.classList.remove("hidden")
+  }
+})
+
+// Validar formulario de registro
+function validateRegisterForm() {
+  let isValid = true
+
+  // Validar email
+  const emailInput = document.getElementById("new-email")
+  const emailError = document.getElementById("error-new-email")
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (!emailInput.value.trim()) {
+    emailError.textContent = "El email es obligatorio"
+    emailError.classList.remove("hidden")
+    isValid = false
+  } else if (!emailRegex.test(emailInput.value)) {
+    emailError.textContent = "Email inválido"
+    emailError.classList.remove("hidden")
+    isValid = false
+  }
+
+  // Validar nombre
+  const nameInput = document.getElementById("new-name")
+  const nameError = document.getElementById("error-new-name")
+
+  if (!nameInput.value.trim()) {
+    nameError.textContent = "El nombre es obligatorio"
+    nameError.classList.remove("hidden")
+    isValid = false
+  }
+
+  // Validar contraseña
+  const passwordInput = document.getElementById("new-password")
+  const passwordError = document.getElementById("error-new-password")
+
+  if (!passwordInput.value) {
+    passwordError.textContent = "La contraseña es obligatoria"
+    passwordError.classList.remove("hidden")
+    isValid = false
+  } else if (passwordInput.value.length < 6) {
+    passwordError.textContent = "La contraseña debe tener al menos 6 caracteres"
+    passwordError.classList.remove("hidden")
+    isValid = false
+  }
+
+  // Validar confirmación de contraseña
+  const confirmInput = document.getElementById("confirm-password")
+  const confirmError = document.getElementById("error-confirm-password")
+
+  if (!confirmInput.value) {
+    confirmError.textContent = "Debe confirmar la contraseña"
+    confirmError.classList.remove("hidden")
+    isValid = false
+  } else if (confirmInput.value !== passwordInput.value) {
+    confirmError.textContent = "Las contraseñas no coinciden"
+    confirmError.classList.remove("hidden")
+    isValid = false
+  }
+
+  return isValid
+}
+
+// Limpiar errores del formulario de registro
+function clearRegisterErrors() {
+  document.getElementById("error-new-email").textContent = ""
+  document.getElementById("error-new-email").classList.add("hidden")
+
+  document.getElementById("error-new-name").textContent = ""
+  document.getElementById("error-new-name").classList.add("hidden")
+
+  document.getElementById("error-new-password").textContent = ""
+  document.getElementById("error-new-password").classList.add("hidden")
+
+  document.getElementById("error-confirm-password").textContent = ""
+  document.getElementById("error-confirm-password").classList.add("hidden")
+
+  registerError.textContent = ""
+  registerError.classList.add("hidden")
+}
