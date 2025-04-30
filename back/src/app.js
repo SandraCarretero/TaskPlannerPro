@@ -5,14 +5,14 @@ const WebSocket = require("ws");
 const http = require("http");
 
 // Importar rutas
-const authRoutes = require("./routes/auth.routes");
-const taskRoutes = require("./routes/task.routes");
-const eventRoutes = require("./routes/event.routes");
-const photoRoutes = require("./routes/photo.routes");
-const userRoutes = require("./routes/user.routes");
+const authRoutes = require("./routes/authRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const eventRoutes = require("./routes/eventRoutes");
+const photoRoutes = require("./routes/avatarRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Importar middlewares
-const { errorHandler } = require("./middlewares/error.middleware");
+const { errorHandler } = require("./middlewares/errorMiddleware");
 
 // Inicializar Express
 const app = express();
