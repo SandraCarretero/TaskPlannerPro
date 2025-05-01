@@ -95,6 +95,9 @@
               <button id="logout" class="btn btn-outline danger">
                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
               </button>
+              <button id="delete" class="btn btn-outline danger">
+                <i class="fas fa-trash"></i> Eliminar
+              </button>
             </div>
           </div>
           
@@ -242,6 +245,21 @@
             <button type="submit" class="btn btn-primary">Guardar Avatar</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Delete Acount Modal -->
+    <div id="user-delete-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>¿Eliminar usuario?</h2>
+        <p>
+          ¿Estás seguro de que deseas eliminar este usuario?<br />Esta acción no
+          se puede deshacer.
+        </p>
+        <div class="modal-actions">
+          <button type="submit" id="user-confirm-delete" class="btn danger">Eliminar</button>
+          <button id="user-cancel-delete" class="btn btn-outline">Cancelar</button>
+        </div>
       </div>
     </div>
   </body>

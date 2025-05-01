@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken")
 const User = require("../models/userModel")
-const { sendWelcomeEmail } = require("../services/emailService")
+const { sendRegistrationConfirmation } = require("../services/emailService")
 const { AppError } = require("../utils/errorUtil")
 
 // Clave secreta para JWT
@@ -27,7 +27,7 @@ exports.register = async (req, res, next) => {
     await user.save()
 
     // Enviar email de bienvenida
-    await sendWelcomeEmail(user.email, user.name)
+    await sendRegistrationConfirmation({ name: user.name, email: user.email })
 
     // Generar token JWT
     const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: "24h" })

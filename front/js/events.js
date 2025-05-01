@@ -3,7 +3,6 @@ import { loadCurrentWeather } from './weather.js';
 // Variables globales
 let events = [];
 let currentUser = null;
-let socket = null;
 
 // URL base para la API
 const API_URL = 'http://localhost:3000/api';
@@ -34,9 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     // Obtener información del usuario actual
     await getCurrentUser();
-
-    // Inicializar WebSocket
-    initWebSocket();
 
     // Cargar eventos
     await loadEvents();
@@ -87,50 +83,6 @@ async function getCurrentUser() {
     console.error('Error al obtener usuario:', error);
     throw error;
   }
-}
-
-// Inicializar WebSocket
-function initWebSocket() {
-  // Crear conexión WebSocket
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//localhost:3000`;
-
-  socket = new WebSocket(wsUrl);
-
-  socket.onopen = () => {
-    console.log('Conectado al servidor WebSocket');
-  };
-
-  socket.onmessage = event => {
-    const data = JSON.parse(event.data);
-    console.log('Mensaje WebSocket recibido:', data);
-
-    // Manejar diferentes tipos de mensajes
-    switch (data.type) {
-      case 'EVENT_CREATED':
-      case 'EVENT_UPDATED':
-        handleEventUpdate(data.payload);
-        break;
-      case 'EVENT_DELETED':
-        handleEventDelete(data.payload.id);
-        break;
-      case 'PHOTO_UPLOADED':
-      case 'PHOTO_DELETED':
-        // Recargar eventos para reflejar cambios en fotos
-        loadEvents();
-        break;
-    }
-  };
-
-  socket.onclose = () => {
-    console.log('Desconectado del servidor WebSocket');
-    // Intentar reconectar después de 5 segundos
-    setTimeout(initWebSocket, 5000);
-  };
-
-  socket.onerror = error => {
-    console.error('Error en WebSocket:', error);
-  };
 }
 
 // Cargar eventos desde la API

@@ -120,3 +120,27 @@ exports.changePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteAcount = async (req, res, next) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.user.id);
+
+    if (!deletedUser) {
+      throw new AppError('Usuario no encontrado', 404);
+    }
+
+    // Eliminar cookie con el token
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict'
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Cuenta eliminada y sesión cerrada correctamente'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

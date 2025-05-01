@@ -4,7 +4,6 @@ import { loadNews } from './news.js';
 // Variables globales
 let tasks = [];
 let currentUser = null;
-let socket = null;
 let selectedPriority = 'all';
 
 // URL base para la API
@@ -48,9 +47,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     // Obtener información del usuario actual
     await getCurrentUser();
-
-    // Inicializar WebSocket
-    initWebSocket();
 
     // Cargar tareas
     await loadTasks();
@@ -105,50 +101,6 @@ async function getCurrentUser() {
     console.error('Error al obtener usuario:', error);
     throw error;
   }
-}
-
-// Inicializar WebSocket
-function initWebSocket() {
-  // Crear conexión WebSocket
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//localhost:3000`;
-
-  socket = new WebSocket(wsUrl);
-
-  socket.onopen = () => {
-    console.log('Conectado al servidor WebSocket');
-  };
-
-  socket.onmessage = event => {
-    const data = JSON.parse(event.data);
-    console.log('Mensaje WebSocket recibido:', data);
-
-    // Manejar diferentes tipos de mensajes
-    switch (data.type) {
-      case 'TASK_CREATED':
-      case 'TASK_UPDATED':
-        handleTaskUpdate(data.payload);
-        break;
-      case 'TASK_DELETED':
-        handleTaskDelete(data.payload.id);
-        break;
-      case 'PHOTO_UPLOADED':
-      case 'PHOTO_DELETED':
-        // Recargar tareas para reflejar cambios en fotos
-        loadTasks();
-        break;
-    }
-  };
-
-  socket.onclose = () => {
-    console.log('Desconectado del servidor WebSocket');
-    // Intentar reconectar después de 5 segundos
-    setTimeout(initWebSocket, 5000);
-  };
-
-  socket.onerror = error => {
-    console.error('Error en WebSocket:', error);
-  };
 }
 
 // Cargar tareas desde la API
@@ -506,32 +458,6 @@ function validateTaskForm() {
   }
 
   return isValid;
-}
-
-// Manejar actualización de tarea desde WebSocket
-function handleTaskUpdate(task) {
-  // Buscar si la tarea ya existe en el array
-  const index = tasks.findIndex(t => t._id === task._id);
-
-  if (index !== -1) {
-    // Actualizar tarea existente
-    tasks[index] = task;
-  } else {
-    // Agregar nueva tarea
-    tasks.push(task);
-  }
-
-  // Renderizar tareas
-  renderTasks();
-}
-
-// Manejar eliminación de tarea desde WebSocket
-function handleTaskDelete(taskId) {
-  // Eliminar tarea del array
-  tasks = tasks.filter(task => task._id !== taskId);
-
-  // Renderizar tareas
-  renderTasks();
 }
 
 // Configurar eventos

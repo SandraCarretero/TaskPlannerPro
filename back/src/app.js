@@ -10,6 +10,7 @@ const taskRoutes = require("./routes/taskRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const photoRoutes = require("./routes/avatarRoutes");
 const userRoutes = require("./routes/userRoutes");
+const emailRoutes = require("./routes/emailRoutes");
 
 // Importar middlewares
 const { errorHandler } = require("./middlewares/errorMiddleware");
@@ -62,6 +63,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/photos", photoRoutes);
 app.use("/api/users", userRoutes);
+app.use('/api/email', emailRoutes);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
