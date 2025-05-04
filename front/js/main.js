@@ -1,5 +1,5 @@
 import { loadCurrentWeather } from './weather.js';
-import { loadNews } from './news.js';
+// import { loadNews } from './news.js';
 
 // Variables globales
 let tasks = [];
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadCurrentWeather('Madrid');
 
     // Cargar noticias
-    loadNews();
+    // loadNews();
 
     // Configurar eventos
     setupEventListeners();
