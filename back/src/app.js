@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const WebSocket = require("ws");
 const http = require("http");
 
 // Importar rutas
@@ -11,6 +10,9 @@ const eventRoutes = require("./routes/eventRoutes");
 const photoRoutes = require("./routes/avatarRoutes");
 const userRoutes = require("./routes/userRoutes");
 const emailRoutes = require("./routes/emailRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+
+const websocketService = require("./services/websocketService");
 
 // Importar middlewares
 const { errorHandler } = require("./middlewares/errorMiddleware");
@@ -19,8 +21,7 @@ const { errorHandler } = require("./middlewares/errorMiddleware");
 const app = express();
 const server = http.createServer(app);
 
-// Configurar WebSocket
-const wss = new WebSocket.Server({ server });
+const wss = websocketService.initWebSocket(server);
 
 // Middleware
 app.use(cors({
@@ -32,30 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// WebSocket para comunicación en tiempo real
-wss.on("connection", (ws) => {
-  console.log("Cliente conectado a WebSocket");
-
-  ws.on("message", (message) => {
-    try {
-      const data = JSON.parse(message);
-      console.log("Mensaje recibido:", data);
-
-      // Broadcast a todos los clientes conectados
-      wss.clients.forEach((client) => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(data));
-        }
-      });
-    } catch (error) {
-      console.error("Error al procesar mensaje WebSocket:", error);
-    }
-  });
-
-  ws.on("close", () => {
-    console.log("Cliente desconectado");
-  });
-});
+app.use(express.static(path.join(__dirname, "../../frontend")));
 
 // Rutas de la API
 app.use("/api/auth", authRoutes);
@@ -64,6 +42,11 @@ app.use("/api/events", eventRoutes);
 app.use("/api/photos", photoRoutes);
 app.use("/api/users", userRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/chat', chatRoutes);
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../frontend/index.html"));
+});
 
 // Middleware de manejo de errores
 app.use(errorHandler);

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { server } = require("./src/app");
+const { server } = require('./src/app');
 const { connectDB } = require('./src/config/db');
 
 // Configuración de puerto
@@ -10,13 +10,14 @@ const startServer = async () => {
   try {
     // Conexión a MongoDB usando la función de config/db.js
     await connectDB();
-    
+
     // Iniciar servidor
     server.listen(PORT, () => {
       console.log(`Servidor corriendo en el puerto ${PORT}`);
+      console.log(`WebSocket disponible en ws://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("Error al iniciar el servidor:", error);
+    console.error('Error al iniciar el servidor:', error);
     process.exit(1);
   }
 };
@@ -25,8 +26,8 @@ const startServer = async () => {
 startServer();
 
 // Manejar errores no capturados
-process.on("unhandledRejection", (err) => {
-  console.error("Error no manejado:", err);
+process.on('unhandledRejection', err => {
+  console.error('Error no manejado:', err);
   server.close(() => {
     process.exit(1);
   });

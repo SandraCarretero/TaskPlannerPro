@@ -1,15 +1,15 @@
-const avatarService = require("../services/avatarService");
-const { AppError } = require("../utils/errorUtil");
+const avatarService = require('../services/avatarService');
+const { AppError } = require('../utils/errorUtil');
 
 exports.uploadAvatar = async (req, res, next) => {
   try {
-    if (!req.file) throw new AppError("No se ha subido ningún archivo", 400);
+    if (!req.file) throw new AppError('No se ha subido ningún archivo', 400);
 
     const avatar = await avatarService.uploadAvatar(req.file, req.user.id);
 
     res.status(201).json({
-      status: "success",
-      data: { avatar },
+      status: 'success',
+      data: { avatar }
     });
   } catch (error) {
     next(error);
@@ -22,8 +22,8 @@ exports.getAvatar = async (req, res, next) => {
     const avatar = await avatarService.getUserAvatar(userId);
 
     res.status(200).json({
-      status: "success",
-      data: { avatar },
+      status: 'success',
+      data: { avatar }
     });
   } catch (error) {
     next(error);
@@ -35,8 +35,8 @@ exports.deleteAvatar = async (req, res, next) => {
     await avatarService.deleteUserAvatar(req.user.id);
 
     res.status(204).json({
-      status: "success",
-      data: null,
+      status: 'success',
+      data: null
     });
   } catch (error) {
     next(error);

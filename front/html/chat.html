@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+
+    <title>Flowtask - Chat</title>
+
+    <link rel="shortcut icon" href="../img/icon.svg" type="image/x-icon" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/sidebar.css" />
+    <link rel="stylesheet" href="../css/chat.css" />
+    <script defer type="module" src="../js/chat.js"></script>
+  </head>
+  <body>
+    <div class="main-content">
+      <div class="sidebar">
+        <a class="hidden-mobile">
+          <div class="logo">
+            <img src="../img/icon.svg" alt="" class="logo-img" />
+            <span>Flowtask</span>
+          </div>
+        </a>
+        <a href="../index.html">
+          <div class="nav-item">
+            <i class="fas fa-tasks"></i>
+            <span class="hidden-mobile">Tareas</span>
+          </div>
+        </a>
+        <a href="events.html">
+          <div class="nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span class="hidden-mobile">Eventos</span>
+          </div>
+        </a>
+
+        <div id="addTaskMenu" class="nav-item nav-plus hidden-desktop">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+        <a href="chat.html">
+          <div class="nav-item active">
+            <i class="fas fa-comment"></i>
+            <span class="hidden-mobile">Chat</span>
+          </div>
+        </a>
+        <a href="profile.html">
+          <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span class="hidden-mobile">Perfil</span>
+          </div>
+        </a>
+      </div>
+      <div class="main-area">
+        <div class="tasks-area-header">
+          <div class="logo hidden-desktop">
+            <img src="../img/icon.svg" alt="" class="logo-img" />
+            <span>Flowtask</span>
+          </div>
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-sidebar">
+            <div class="chat-search">
+              <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input
+                  type="text"
+                  placeholder="Buscar conversaciones..."
+                  id="chat-search"
+                />
+              </div>
+            </div>
+            <div class="chat-contacts" id="chat-contacts">
+              <!-- Contactos se cargarán dinámicamente -->
+              <div class="chat-contact active" data-contact-id="1">
+                <div class="contact-avatar">
+                  <img
+                    src="/placeholder.svg?height=40&width=40"
+                    alt="María López"
+                  />
+                </div>
+                <div class="contact-info">
+                  <div class="contact-name">María López</div>
+                  <div class="contact-last-message">¿Cómo va el proyecto?</div>
+                </div>
+                <div class="contact-meta">
+                  <div class="contact-time">10:30</div>
+                  <div class="contact-unread">3</div>
+                </div>
+              </div>
+              <div class="chat-contact" data-contact-id="2">
+                <div class="contact-avatar">
+                  <img
+                    src="/placeholder.svg?height=40&width=40"
+                    alt="Equipo de Desarrollo"
+                  />
+                </div>
+                <div class="contact-info">
+                  <div class="contact-name">Equipo de Desarrollo</div>
+                  <div class="contact-last-message">
+                    Juan: Reunión a las 15:00
+                  </div>
+                </div>
+                <div class="contact-meta">
+                  <div class="contact-time">09:15</div>
+                </div>
+              </div>
+              <div class="chat-contact" data-contact-id="3">
+                <div class="contact-avatar">
+                  <img
+                    src="/placeholder.svg?height=40&width=40"
+                    alt="Carlos Rodríguez"
+                  />
+                </div>
+                <div class="contact-info">
+                  <div class="contact-name">Carlos Rodríguez</div>
+                  <div class="contact-last-message">
+                    Gracias por la información
+                  </div>
+                </div>
+                <div class="contact-meta">
+                  <div class="contact-time">Ayer</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-main">
+            <div class="chat-header">
+              <div class="chat-header-user">
+                <div class="contact-avatar">
+                  <img
+                    src="/placeholder.svg?height=40&width=40"
+                    alt="María López"
+                  />
+                </div>
+                <div class="contact-info">
+                  <div class="contact-name">María López</div>
+                  <div class="contact-status">En línea</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+              <!-- Mensajes se cargarán dinámicamente -->
+              <div class="message-date">Hoy</div>
+
+              <div class="message received">
+                <div class="message-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="María López"
+                  />
+                </div>
+                <div class="message-content">
+                  <div class="message-bubble">
+                    Hola, ¿cómo va el proyecto de Flowtask?
+                  </div>
+                  <div class="message-time">10:15</div>
+                </div>
+              </div>
+
+              <div class="message sent">
+                <div class="message-content">
+                  <div class="message-bubble">
+                    ¡Hola María! Va muy bien, estamos terminando la
+                    funcionalidad de chat.
+                  </div>
+                  <div class="message-time">10:18</div>
+                </div>
+              </div>
+
+              <div class="message received">
+                <div class="message-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="María López"
+                  />
+                </div>
+                <div class="message-content">
+                  <div class="message-bubble">
+                    ¡Genial! ¿Cuándo crees que estará lista para probar?
+                  </div>
+                  <div class="message-time">10:20</div>
+                </div>
+              </div>
+
+              <div class="message sent">
+                <div class="message-content">
+                  <div class="message-bubble">
+                    Estimo que para finales de esta semana podríamos tener una
+                    versión de prueba.
+                  </div>
+                  <div class="message-time">10:22</div>
+                </div>
+              </div>
+
+              <div class="message received">
+                <div class="message-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="María López"
+                  />
+                </div>
+                <div class="message-content">
+                  <div class="message-bubble">
+                    Perfecto, estaré pendiente. ¿Necesitas algo de mi parte para
+                    avanzar?
+                  </div>
+                  <div class="message-time">10:25</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-input-container">
+              <button class="chat-attach-btn">
+                <i class="fas fa-paperclip"></i>
+              </button>
+              <div class="chat-input-wrapper">
+                <input
+                  type="text"
+                  id="message-input"
+                  placeholder="Escribe un mensaje..."
+                  class="chat-input"
+                />
+                <button class="chat-emoji-btn">
+                  <i class="far fa-smile"></i>
+                </button>
+              </div>
+              <button class="chat-send-btn" id="send-message">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para crear grupo -->
+    <div class="modal hidden" id="group-modal">
+      <div class="task-detail">
+        <div class="detail-header">
+          <h2>Crear nuevo grupo</h2>
+          <div class="task-action-buttons">
+            <button id="cancel-group" class="btn btn-outline">Cancelar</button>
+            <button id="create-group-btn" class="btn btn-primary">Crear</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="group-name">Nombre del grupo</label>
+          <input type="text" id="group-name" class="form-control" />
+          <div class="error-message" id="error-group-name"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Participantes</label>
+          <div class="group-participants">
+            <div class="participant-item">
+              <input
+                type="checkbox"
+                id="participant-1"
+                class="participant-checkbox"
+              />
+              <label for="participant-1" class="participant-label">
+                <div class="participant-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="María López"
+                  />
+                </div>
+                <span>María López</span>
+              </label>
+            </div>
+            <div class="participant-item">
+              <input
+                type="checkbox"
+                id="participant-2"
+                class="participant-checkbox"
+              />
+              <label for="participant-2" class="participant-label">
+                <div class="participant-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="Carlos Rodríguez"
+                  />
+                </div>
+                <span>Carlos Rodríguez</span>
+              </label>
+            </div>
+            <div class="participant-item">
+              <input
+                type="checkbox"
+                id="participant-3"
+                class="participant-checkbox"
+              />
+              <label for="participant-3" class="participant-label">
+                <div class="participant-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="Ana Martínez"
+                  />
+                </div>
+                <span>Ana Martínez</span>
+              </label>
+            </div>
+            <div class="participant-item">
+              <input
+                type="checkbox"
+                id="participant-4"
+                class="participant-checkbox"
+              />
+              <label for="participant-4" class="participant-label">
+                <div class="participant-avatar">
+                  <img
+                    src="/placeholder.svg?height=30&width=30"
+                    alt="Juan Pérez"
+                  />
+                </div>
+                <span>Juan Pérez</span>
+              </label>
+            </div>
+          </div>
+          <div class="error-message" id="error-participants"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
