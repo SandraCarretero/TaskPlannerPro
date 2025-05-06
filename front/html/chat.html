@@ -72,6 +72,9 @@
             <img src="../img/icon.svg" alt="" class="logo-img" />
             <span>Flowtask</span>
           </div>
+          <div id="connection-status" class="status-disconnected">
+            Desconectado
+          </div>
         </div>
 
         <div class="chat-container">
@@ -88,144 +91,24 @@
             </div>
             <div class="chat-contacts" id="chat-contacts">
               <!-- Contactos se cargarán dinámicamente -->
-              <div class="chat-contact active" data-contact-id="1">
-                <div class="contact-avatar">
-                  <img
-                    src="/placeholder.svg?height=40&width=40"
-                    alt="María López"
-                  />
-                </div>
-                <div class="contact-info">
-                  <div class="contact-name">María López</div>
-                  <div class="contact-last-message">¿Cómo va el proyecto?</div>
-                </div>
-                <div class="contact-meta">
-                  <div class="contact-time">10:30</div>
-                  <div class="contact-unread">3</div>
-                </div>
-              </div>
-              <div class="chat-contact" data-contact-id="2">
-                <div class="contact-avatar">
-                  <img
-                    src="/placeholder.svg?height=40&width=40"
-                    alt="Equipo de Desarrollo"
-                  />
-                </div>
-                <div class="contact-info">
-                  <div class="contact-name">Equipo de Desarrollo</div>
-                  <div class="contact-last-message">
-                    Juan: Reunión a las 15:00
-                  </div>
-                </div>
-                <div class="contact-meta">
-                  <div class="contact-time">09:15</div>
-                </div>
-              </div>
-              <div class="chat-contact" data-contact-id="3">
-                <div class="contact-avatar">
-                  <img
-                    src="/placeholder.svg?height=40&width=40"
-                    alt="Carlos Rodríguez"
-                  />
-                </div>
-                <div class="contact-info">
-                  <div class="contact-name">Carlos Rodríguez</div>
-                  <div class="contact-last-message">
-                    Gracias por la información
-                  </div>
-                </div>
-                <div class="contact-meta">
-                  <div class="contact-time">Ayer</div>
-                </div>
-              </div>
             </div>
           </div>
 
           <div class="chat-main">
-            <div class="chat-header">
-              <div class="chat-header-user">
-                <div class="contact-avatar">
-                  <img
-                    src="/placeholder.svg?height=40&width=40"
-                    alt="María López"
-                  />
-                </div>
-                <div class="contact-info">
-                  <div class="contact-name">María López</div>
-                  <div class="contact-status">En línea</div>
-                </div>
-              </div>
+            <div class="chat-header" id="chat-header">
+              <!-- El encabezado se cargará dinámicamente -->
             </div>
 
             <div class="chat-messages" id="chat-messages">
               <!-- Mensajes se cargarán dinámicamente -->
-              <div class="message-date">Hoy</div>
+            </div>
 
-              <div class="message received">
-                <div class="message-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="María López"
-                  />
-                </div>
-                <div class="message-content">
-                  <div class="message-bubble">
-                    Hola, ¿cómo va el proyecto de Flowtask?
-                  </div>
-                  <div class="message-time">10:15</div>
-                </div>
-              </div>
-
-              <div class="message sent">
-                <div class="message-content">
-                  <div class="message-bubble">
-                    ¡Hola María! Va muy bien, estamos terminando la
-                    funcionalidad de chat.
-                  </div>
-                  <div class="message-time">10:18</div>
-                </div>
-              </div>
-
-              <div class="message received">
-                <div class="message-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="María López"
-                  />
-                </div>
-                <div class="message-content">
-                  <div class="message-bubble">
-                    ¡Genial! ¿Cuándo crees que estará lista para probar?
-                  </div>
-                  <div class="message-time">10:20</div>
-                </div>
-              </div>
-
-              <div class="message sent">
-                <div class="message-content">
-                  <div class="message-bubble">
-                    Estimo que para finales de esta semana podríamos tener una
-                    versión de prueba.
-                  </div>
-                  <div class="message-time">10:22</div>
-                </div>
-              </div>
-
-              <div class="message received">
-                <div class="message-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="María López"
-                  />
-                </div>
-                <div class="message-content">
-                  <div class="message-bubble">
-                    Perfecto, estaré pendiente. ¿Necesitas algo de mi parte para
-                    avanzar?
-                  </div>
-                  <div class="message-time">10:25</div>
-                </div>
-              </div>
+            <div
+              id="typing-indicator"
+              class="typing-indicator"
+              style="display: none"
+            >
+              <!-- Indicador de escritura -->
             </div>
 
             <div class="chat-input-container">
@@ -248,96 +131,6 @@
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal para crear grupo -->
-    <div class="modal hidden" id="group-modal">
-      <div class="task-detail">
-        <div class="detail-header">
-          <h2>Crear nuevo grupo</h2>
-          <div class="task-action-buttons">
-            <button id="cancel-group" class="btn btn-outline">Cancelar</button>
-            <button id="create-group-btn" class="btn btn-primary">Crear</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="group-name">Nombre del grupo</label>
-          <input type="text" id="group-name" class="form-control" />
-          <div class="error-message" id="error-group-name"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Participantes</label>
-          <div class="group-participants">
-            <div class="participant-item">
-              <input
-                type="checkbox"
-                id="participant-1"
-                class="participant-checkbox"
-              />
-              <label for="participant-1" class="participant-label">
-                <div class="participant-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="María López"
-                  />
-                </div>
-                <span>María López</span>
-              </label>
-            </div>
-            <div class="participant-item">
-              <input
-                type="checkbox"
-                id="participant-2"
-                class="participant-checkbox"
-              />
-              <label for="participant-2" class="participant-label">
-                <div class="participant-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="Carlos Rodríguez"
-                  />
-                </div>
-                <span>Carlos Rodríguez</span>
-              </label>
-            </div>
-            <div class="participant-item">
-              <input
-                type="checkbox"
-                id="participant-3"
-                class="participant-checkbox"
-              />
-              <label for="participant-3" class="participant-label">
-                <div class="participant-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="Ana Martínez"
-                  />
-                </div>
-                <span>Ana Martínez</span>
-              </label>
-            </div>
-            <div class="participant-item">
-              <input
-                type="checkbox"
-                id="participant-4"
-                class="participant-checkbox"
-              />
-              <label for="participant-4" class="participant-label">
-                <div class="participant-avatar">
-                  <img
-                    src="/placeholder.svg?height=30&width=30"
-                    alt="Juan Pérez"
-                  />
-                </div>
-                <span>Juan Pérez</span>
-              </label>
-            </div>
-          </div>
-          <div class="error-message" id="error-participants"></div>
         </div>
       </div>
     </div>

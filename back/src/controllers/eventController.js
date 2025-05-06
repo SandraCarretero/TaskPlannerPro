@@ -1,14 +1,14 @@
-const eventService = require("../services/eventService");
-const { AppError } = require("../utils/errorUtil");
+const eventService = require('../services/eventService');
+const { AppError } = require('../utils/errorUtil');
 
 // Obtener todos los eventos del usuario
 exports.getEvents = async (req, res, next) => {
   try {
     const events = await eventService.getUserEvents(req.user.id);
     res.status(200).json({
-      status: "success",
+      status: 'success',
       results: events.length,
-      data: { events },
+      data: { events }
     });
   } catch (error) {
     next(error);
@@ -19,10 +19,10 @@ exports.getEvents = async (req, res, next) => {
 exports.getEvent = async (req, res, next) => {
   try {
     const event = await eventService.getEventById(req.params.id, req.user.id);
-    if (!event) throw new AppError("Evento no encontrado", 404);
+    if (!event) throw new AppError('Evento no encontrado', 404);
     res.status(200).json({
-      status: "success",
-      data: { event },
+      status: 'success',
+      data: { event }
     });
   } catch (error) {
     next(error);
@@ -32,10 +32,11 @@ exports.getEvent = async (req, res, next) => {
 // Crear un nuevo evento
 exports.createEvent = async (req, res, next) => {
   try {
-    const event = await eventService.createEvent(req.body, req.user.id);
+    const eventData = { ...req.body };
+    const event = await eventService.createEvent(eventData);
     res.status(201).json({
-      status: "success",
-      data: { event },
+      status: 'success',
+      data: { event }
     });
   } catch (error) {
     next(error);
@@ -45,12 +46,15 @@ exports.createEvent = async (req, res, next) => {
 // Actualizar un evento
 exports.updateEvent = async (req, res, next) => {
   try {
-    const event = await eventService.updateEvent(req.params.id, req.body, req.user.id);
-    if (!event) throw new AppError("Evento no encontrado", 404);
-    res.status(200).json({
-      status: "success",
-      data: { event },
-    });
+    const updates = req.body;
+    const event = await eventService.updateEvent(
+      req.params.id,
+      updates
+    );
+    console.log('ID de tarea a actualizar:', req.params.id);
+    console.log('Datos a actualizar:', req.body);
+    if (!event) throw new AppError('Evento no encontrado', 404);
+    res.status(200).json({ status: 'success', data: { event } });
   } catch (error) {
     next(error);
   }
@@ -59,9 +63,9 @@ exports.updateEvent = async (req, res, next) => {
 // Eliminar un evento
 exports.deleteEvent = async (req, res, next) => {
   try {
-    const deleted = await eventService.deleteEvent(req.params.id, req.user.id);
-    if (!deleted) throw new AppError("Evento no encontrado", 404);
-    res.status(204).json({ status: "success", data: null });
+    const deleted = await eventService.deleteEvent(req.params.id);
+    if (!deleted) throw new AppError('Evento no encontrado', 404);
+    res.status(204).json({ status: 'success', data: null });
   } catch (error) {
     next(error);
   }
@@ -70,15 +74,15 @@ exports.deleteEvent = async (req, res, next) => {
 // Obtener todos los eventos (solo admin)
 exports.getAllEvents = async (req, res, next) => {
   try {
-    if (req.user.role !== "admin") {
-      throw new AppError("No tienes permiso para realizar esta acción", 403);
+    if (req.user.role !== 'admin') {
+      throw new AppError('No tienes permiso para realizar esta acción', 403);
     }
 
     const events = await eventService.getAllEvents();
     res.status(200).json({
-      status: "success",
+      status: 'success',
       results: events.length,
-      data: { events },
+      data: { events }
     });
   } catch (error) {
     next(error);

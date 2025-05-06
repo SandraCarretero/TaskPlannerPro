@@ -1,12 +1,13 @@
 const taskService = require('../services/taskService');
-const { broadcastUpdate } = require('../services/websocketService');
 const { AppError } = require('../utils/errorUtil');
 
 // Obtener todas las tareas del usuario
 exports.getTasks = async (req, res, next) => {
   try {
     const tasks = await taskService.getUserTasks(req.user.id);
-    res.status(200).json({ status: 'success', results: tasks.length, data: { tasks } });
+    res
+      .status(200)
+      .json({ status: 'success', results: tasks.length, data: { tasks } });
   } catch (error) {
     next(error);
   }
@@ -25,9 +26,8 @@ exports.getTask = async (req, res, next) => {
 // Crear una nueva tarea
 exports.createTask = async (req, res, next) => {
   try {
-    const taskData = { ...req.body, user: req.user.id };
+    const taskData = { ...req.body };
     const task = await taskService.createTask(taskData);
-    broadcastUpdate({ type: 'TASK_CREATED', payload: task });
     res.status(201).json({ status: 'success', data: { task } });
   } catch (error) {
     next(error);
@@ -38,8 +38,13 @@ exports.createTask = async (req, res, next) => {
 exports.updateTask = async (req, res, next) => {
   try {
     const updates = req.body;
-    const task = await taskService.updateTask(req.params.id, req.user.id, updates);
-    broadcastUpdate({ type: 'TASK_UPDATED', payload: task });
+    const task = await taskService.updateTask(
+      req.params.id,
+      updates
+    );
+    console.log('ID de tarea a actualizar:', req.params.id);
+    console.log('Datos a actualizar:', req.body);
+    if (!task) throw new AppError('Tarea no encontrada', 404);
     res.status(200).json({ status: 'success', data: { task } });
   } catch (error) {
     next(error);
@@ -49,8 +54,8 @@ exports.updateTask = async (req, res, next) => {
 // Eliminar una tarea
 exports.deleteTask = async (req, res, next) => {
   try {
-    await taskService.deleteTask(req.params.id, req.user.id);
-    broadcastUpdate({ type: 'TASK_DELETED', payload: { id: req.params.id } });
+    const deleted = await taskService.deleteTask(req.params.id);
+    if (!deleted) throw new AppError('Tarea no encontrada', 404);
     res.status(204).json({ status: 'success', data: null });
   } catch (error) {
     next(error);
@@ -64,7 +69,9 @@ exports.getAllTasks = async (req, res, next) => {
       throw new AppError('No tienes permiso para realizar esta acción', 403);
     }
     const tasks = await taskService.getAllTasks();
-    res.status(200).json({ status: 'success', results: tasks.length, data: { tasks } });
+    res
+      .status(200)
+      .json({ status: 'success', results: tasks.length, data: { tasks } });
   } catch (error) {
     next(error);
   }

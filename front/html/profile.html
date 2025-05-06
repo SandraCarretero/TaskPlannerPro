@@ -49,6 +49,10 @@
             <span class="hidden-mobile">Eventos</span>
           </div>
         </a>
+
+        <div id="addTaskMenu" class="nav-item nav-plus hidden-desktop">
+          <i class="fa-solid fa-plus"></i>
+        </div>
         <a href="chat.html">
           <div class="nav-item">
             <i class="fas fa-comment"></i>
@@ -81,7 +85,9 @@
               </div>
               <div class="profile-info">
                 <h2 id="profile-name">Nombre de Usuario</h2>
-                <p id="profile-email">usuario@example.com</p>
+                <p class="profile-email" id="profile-email">
+                  usuario@example.com
+                </p>
                 <p id="profile-role" class="profile-role">Usuario</p>
               </div>
             </div>
@@ -100,37 +106,7 @@
               </button>
             </div>
           </div>
-          
-          <div id="admin-section" class="admin-section hidden">
-            <h2>Área de Administración</h2>
-            <div class="admin-cards">
-              <div class="admin-card">
-                <i class="fas fa-users"></i>
-                <h3>Usuarios</h3>
-                <p>Gestionar usuarios del sistema</p>
-                <button id="manage-users" class="btn btn-primary">Administrar</button>
-              </div>
-              <div class="admin-card">
-                <i class="fas fa-tasks"></i>
-                <h3>Tareas</h3>
-                <p>Gestionar todas las tareas</p>
-                <button id="manage-tasks" class="btn btn-primary">Administrar</button>
-              </div>
-              <div class="admin-card">
-                <i class="fas fa-calendar"></i>
-                <h3>Eventos</h3>
-                <p>Gestionar todos los eventos</p>
-                <button id="manage-events" class="btn btn-primary">Administrar</button>
-              </div>
-              <div class="admin-card">
-                <i class="fas fa-images"></i>
-                <h3>Fotos</h3>
-                <p>Gestionar todas las fotos</p>
-                <button id="manage-photos" class="btn btn-primary">Administrar</button>
-              </div>
-            </div>
-          </div>
-          
+
           <div class="stats-section">
             <h2>Mis Estadísticas</h2>
             <div class="stats-cards">
@@ -159,7 +135,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Edit Profile Modal -->
     <div class="modal hidden" id="edit-profile-modal">
       <div class="modal-content">
@@ -175,15 +151,23 @@
             <input type="text" id="edit-name" class="form-control" required />
             <div class="error-message" id="error-name"></div>
           </div>
-          
+
           <div class="modal-actions">
-            <button type="button" id="cancel-edit-profile" class="btn btn-outline">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <button
+              type="button"
+              id="cancel-edit-profile"
+              class="btn btn-outline"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Guardar Cambios
+            </button>
           </div>
         </form>
       </div>
     </div>
-    
+
     <!-- Change Password Modal -->
     <div class="modal hidden" id="change-password-modal">
       <div class="modal-content">
@@ -196,30 +180,53 @@
         <form id="change-password-form">
           <div class="form-group">
             <label for="current-password">Contraseña Actual</label>
-            <input type="password" id="current-password" class="form-control" required />
+            <input
+              type="password"
+              id="current-password"
+              class="form-control"
+              required
+            />
             <div class="error-message" id="error-current-password"></div>
           </div>
-          
+
           <div class="form-group">
             <label for="new-password">Nueva Contraseña</label>
-            <input type="password" id="new-password" class="form-control" required />
+            <input
+              type="password"
+              id="new-password"
+              class="form-control"
+              required
+            />
             <div class="error-message" id="error-new-password"></div>
           </div>
-          
+
           <div class="form-group">
             <label for="confirm-new-password">Confirmar Nueva Contraseña</label>
-            <input type="password" id="confirm-new-password" class="form-control" required />
+            <input
+              type="password"
+              id="confirm-new-password"
+              class="form-control"
+              required
+            />
             <div class="error-message" id="error-confirm-new-password"></div>
           </div>
-          
+
           <div class="modal-actions">
-            <button type="button" id="cancel-change-password" class="btn btn-outline">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+            <button
+              type="button"
+              id="cancel-change-password"
+              class="btn btn-outline"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Cambiar Contraseña
+            </button>
           </div>
         </form>
       </div>
     </div>
-    
+
     <!-- Change Avatar Modal -->
     <div class="modal hidden" id="change-avatar-modal">
       <div class="modal-content">
@@ -232,17 +239,31 @@
         <form id="change-avatar-form">
           <div class="form-group">
             <label for="avatar-file">Seleccionar Imagen</label>
-            <input type="file" id="avatar-file" class="form-control" accept="image/*" required />
+            <input
+              type="file"
+              id="avatar-file"
+              class="form-control"
+              accept="image/*"
+              required
+            />
             <div class="error-message" id="error-avatar-file"></div>
           </div>
-          
+
           <div class="avatar-preview-container">
             <div id="avatar-preview" class="avatar-preview"></div>
           </div>
-          
+
           <div class="modal-actions">
-            <button type="button" id="cancel-change-avatar" class="btn btn-outline">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar Avatar</button>
+            <button
+              type="button"
+              id="cancel-change-avatar"
+              class="btn btn-outline"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Guardar Avatar
+            </button>
           </div>
         </form>
       </div>
@@ -257,8 +278,12 @@
           se puede deshacer.
         </p>
         <div class="modal-actions">
-          <button type="submit" id="user-confirm-delete" class="btn danger">Eliminar</button>
-          <button id="user-cancel-delete" class="btn btn-outline">Cancelar</button>
+          <button type="submit" id="user-confirm-delete" class="btn danger">
+            Eliminar
+          </button>
+          <button id="user-cancel-delete" class="btn btn-outline">
+            Cancelar
+          </button>
         </div>
       </div>
     </div>

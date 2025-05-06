@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const jwt = require('jsonwebtoken');
 const Message = require('../models/messageModel');
 const Conversation = require('../models/conversationModel');
 const User = require('../models/userModel');
@@ -14,7 +15,7 @@ const userSockets = new Map();
 exports.initWebSocket = server => {
   wss = new WebSocket.Server({ server });
 
-  wss.on('connection', (ws, req) => {
+  wss.on('connection', async (ws, req) => {
     const clientId = Date.now().toString();
     clients.set(clientId, ws);
 
@@ -26,16 +27,19 @@ exports.initWebSocket = server => {
     // Si hay token, verificar y asociar con el usuario
     if (token) {
       try {
-        // Aquí deberías verificar el token y obtener el ID del usuario
-        // Este es un ejemplo simplificado
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         userId = decoded.id;
+
+        const userExists = await User.findById(userId).select('_id');
+        if (!userExists) {
+          throw new Error('Usuario no encontrado');
+        }
 
         // Asociar este socket con el usuario
         userSockets.set(userId, { clientId, ws });
 
         // Actualizar estado del usuario a "en línea"
-        User.findByIdAndUpdate(userId, {
+        await User.findByIdAndUpdate(userId, {
           isOnline: true,
           lastActive: new Date()
         }).exec();
@@ -176,8 +180,41 @@ function broadcastUserStatus(userId, isOnline) {
 
 // Manejar mensajes de chat
 async function handleChatMessage(clientId, userId, data) {
+  if (!userId && data.payload.token) {
+    try {
+      const decoded = jwt.verify(data.payload.token, process.env.JWT_SECRET);
+      userId = decoded.id;
+
+      // Si podemos obtener un userId válido del token, actualizar la asociación
+      if (userId) {
+        // Asociar este socket con el usuario si no estaba ya asociado
+        const client = clients.get(clientId);
+        if (client) {
+          userSockets.set(userId, { clientId, ws: client });
+          console.log(
+            `Usuario ${userId} autenticado mediante token en mensaje`
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Error al verificar token en mensaje:', error);
+    }
+  }
+
+  // Verificar autenticación después del intento de validar el token
   if (!userId) {
     console.error('Usuario no autenticado intentando enviar mensaje');
+    const client = clients.get(clientId);
+    if (client && client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({
+          type: 'ERROR',
+          payload: {
+            message: 'No estás autenticado. Por favor inicia sesión nuevamente.'
+          }
+        })
+      );
+    }
     return;
   }
 

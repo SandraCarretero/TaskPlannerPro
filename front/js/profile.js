@@ -9,7 +9,6 @@ const profileName = document.getElementById('profile-name');
 const profileEmail = document.getElementById('profile-email');
 const profileRole = document.getElementById('profile-role');
 const profileAvatar = document.getElementById('profile-avatar');
-const adminSection = document.getElementById('admin-section');
 
 const editProfileBtn = document.getElementById('edit-profile');
 const changePasswordBtn = document.getElementById('change-password');
@@ -103,11 +102,6 @@ async function getCurrentUser() {
     } else {
       // Mostrar iniciales si no hay avatar
       profileAvatar.textContent = getInitials(currentUser.name);
-    }
-
-    // Mostrar sección de administración si el usuario es admin
-    if (currentUser.role === 'admin') {
-      adminSection.classList.remove('hidden');
     }
   } catch (error) {
     console.error('Error al obtener usuario:', error);

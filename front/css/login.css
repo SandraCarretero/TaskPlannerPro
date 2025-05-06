@@ -7,18 +7,37 @@
   padding: 20px;
 }
 
-.login-box, .register-box {
-  background-color: var(--color-white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  padding: 30px;
-  width: 100%;
+.login-box,
+.register-box {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 90dvw;
   max-width: 400px;
 }
 
-.login-box .logo {
-  margin-bottom: 30px;
+.logo {
+  display: flex;
+  width: 100%;
+  align-items: center;
   justify-content: center;
+  gap: 10px;
+  padding-block: 0;
+  margin-block: 5px;
+  padding-left: 0;
+  font-weight: bolder;
+  color: var(--color-primary);
+  font-size: 30px;
+}
+
+.logo img {
+  width: 35px;
+}
+
+.logo h1 {
+  font-size: 1.8rem;
+  margin: 0;
 }
 
 .register-box h2 {

@@ -48,7 +48,7 @@
             <span class="hidden-mobile">Eventos</span>
           </div>
         </a>
-        
+
         <div id="addTaskMenu" class="nav-item nav-plus hidden-desktop">
           <i class="fa-solid fa-plus"></i>
         </div>
@@ -92,7 +92,7 @@
                 </li>
               </ul>
             </div>
-            <button class="button" id="addTask">
+            <button class="button addTask" id="addTask">
               <i class="fa-solid fa-plus"></i>Nueva tarea
             </button>
           </div>
@@ -148,6 +148,7 @@
         </div>
       </div>
     </div>
+
     <!-- Task Detail -->
     <div class="modal hidden" id="modal">
       <div class="task-detail">
@@ -169,6 +170,18 @@
           <label for="task-date">Fecha límite</label>
           <input type="date" id="task-date" class="form-control" />
           <div class="error-message" id="error-date"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="task-user">Asignar a</label>
+          <select id="task-user" class="form-control">
+            <option value="">Seleccione un usuario</option>
+            <!-- Estos valores pueden generarse dinámicamente con JS -->
+            <option value="usuario1">usuario1@email.com</option>
+            <option value="usuario2">usuario2@email.com</option>
+            <option value="usuario3">usuario3@email.com</option>
+          </select>
+          <div class="error-message" id="error-user"></div>
         </div>
 
         <div class="form-group">

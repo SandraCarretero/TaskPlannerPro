@@ -51,7 +51,8 @@
 
 .chat-contacts {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
+  max-height: 80dvh;
 }
 
 .chat-contacts::-webkit-scrollbar {
@@ -470,6 +471,20 @@
 
 .message-read-status.read {
   color: var(--color-primary);
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+
+  font-size: 1rem;
+  background-size: cover;
+  background-position: center;
 }
 
 /* Responsive */

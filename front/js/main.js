@@ -87,7 +87,8 @@ async function getCurrentUser() {
     currentUser = data.data.user;
 
     // Actualizar UI con información del usuario
-    titleElement.textContent = `Tareas de ${currentUser.name}`;
+    const firstName = currentUser.name.split(' ')[0];
+    titleElement.textContent = `Tareas de ${firstName}`;
 
     // Mostrar avatar si existe
     const avatarElement = document.getElementById('avatar');
@@ -96,6 +97,10 @@ async function getCurrentUser() {
     } else {
       // Mostrar iniciales si no hay avatar
       avatarElement.textContent = getInitials(currentUser.name);
+    }
+
+    if (currentUser.role === 'admin') {
+      addTaskBtn.style.display = 'flex';
     }
   } catch (error) {
     console.error('Error al obtener usuario:', error);
@@ -106,7 +111,13 @@ async function getCurrentUser() {
 // Cargar tareas desde la API
 async function loadTasks() {
   try {
-    const response = await fetch(`${API_URL}/tasks`, {
+    const taskUrl =
+      currentUser.role === 'admin'
+        ? `${API_URL}/tasks/admin/all`
+        : `${API_URL}/tasks`;
+    console.log(currentUser.role);
+
+    const response = await fetch(taskUrl, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -129,6 +140,35 @@ async function loadTasks() {
   } catch (error) {
     console.error('Error al cargar tareas:', error);
   }
+}
+
+const loadUsers = async () => {
+  try {
+    const response = await fetch(`${API_URL}/users`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) throw new Error('No se pudieron cargar los usuarios');
+
+    const data = await response.json();
+    populateUserDropdown(data.data.users);
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error);
+  }
+};
+
+function populateUserDropdown(users) {
+  const userSelect = document.getElementById('task-user');
+  userSelect.innerHTML = '<option value="">Selecciona un usuario</option>';
+
+  users.forEach(user => {
+    const option = document.createElement('option');
+    option.value = user._id;
+    option.textContent = user.name;
+    userSelect.appendChild(option);
+  });
 }
 
 // Renderizar tareas en las columnas
@@ -173,13 +213,13 @@ function renderTasks() {
   });
 }
 
-// Crear elemento HTML para una tarea
-function createTaskElement(task) {
-  const taskElement = document.createElement('div');
-  taskElement.className = `task priority-${task.priority}`;
-  taskElement.dataset.id = task._id;
+const createTaskElement = task => {
+  const userRole = currentUser.role;
 
-  // Calcular días restantes
+  const taskCard = document.createElement('div');
+  taskCard.className = `task priority-${task.priority}`;
+  taskCard.setAttribute('data-id', task._id);
+
   const daysLeft = getDaysLeft(task.dueDate);
   const dueDateFormatted = new Date(task.dueDate).toLocaleDateString('es-ES', {
     day: '2-digit',
@@ -200,48 +240,92 @@ function createTaskElement(task) {
     })`;
   }
 
-  // Crear contenido HTML
-  taskElement.innerHTML = `
-    <div class="task-header">
-      <div class="task-priority">
-        <span class="priority-dot priority-${task.priority}"></span>
-        <span>${capitalizeFirstLetter(task.priority)}</span>
-      </div>
-      <div class="task-actions">
-        <button class="task-action edit-task" title="Editar">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="task-action delete-task" title="Eliminar">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    <h3 class="task-title">${task.title}</h3>
-    <p class="task-description">${task.description || 'Sin descripción'}</p>
-    <div class="task-footer">
-      <div class="task-date ${
-        daysLeft < 0 ? 'overdue' : daysLeft === 0 ? 'today' : ''
-      }">
-        <i class="far fa-calendar"></i>
-        <span>${daysLeftText}</span>
-      </div>
-      <div class="task-tags">
-        ${task.tags
-          .map(tag => `<span class="tag tag-${tag}">${tag}</span>`)
-          .join('')}
-      </div>
-    </div>
-  `;
+  // Crear task-header
+  const taskHeader = document.createElement('div');
+  taskHeader.classList.add('task-header');
 
-  // Agregar eventos
-  const editBtn = taskElement.querySelector('.edit-task');
-  const deleteBtn = taskElement.querySelector('.delete-task');
+  // Prioridad
+  const taskPriority = document.createElement('div');
+  taskPriority.classList.add('task-priority');
 
-  editBtn.addEventListener('click', () => openEditTaskModal(task));
-  deleteBtn.addEventListener('click', () => openDeleteTaskModal(task._id));
+  const priorityDot = document.createElement('span');
+  priorityDot.classList.add('priority-dot', `priority-${task.priority}`);
 
-  return taskElement;
-}
+  const priorityLabel = document.createElement('span');
+  priorityLabel.textContent = capitalizeFirstLetter(task.priority);
+
+  taskPriority.appendChild(priorityDot);
+  taskPriority.appendChild(priorityLabel);
+  taskHeader.appendChild(taskPriority);
+
+  // Botones solo si es admin
+  if (userRole === 'admin') {
+    const taskActions = document.createElement('div');
+    taskActions.classList.add('task-actions');
+
+    const editButton = document.createElement('button');
+    editButton.classList.add('task-action', 'edit-task');
+    editButton.setAttribute('title', 'Editar');
+    editButton.innerHTML = '<i class="fas fa-edit"></i>';
+
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('task-action', 'delete-task');
+    deleteButton.setAttribute('title', 'Eliminar');
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+
+    // Agregar eventos
+    editButton.addEventListener('click', () => openEditTaskModal(task));
+    deleteButton.addEventListener('click', () => openDeleteTaskModal(task._id));
+
+    taskActions.appendChild(editButton);
+    taskActions.appendChild(deleteButton);
+    taskHeader.appendChild(taskActions);
+  }
+
+  // Título
+  const title = document.createElement('h3');
+  title.classList.add('task-title');
+  title.textContent = capitalizeFirstLetter(task.title);
+
+  // Descripción
+  const description = document.createElement('p');
+  description.classList.add('task-description');
+  description.textContent =
+    capitalizeFirstLetter(task.description) || 'Sin descripción';
+
+  // Footer
+  const taskFooter = document.createElement('div');
+  taskFooter.classList.add('task-footer');
+
+  const taskDate = document.createElement('div');
+  taskDate.classList.add('task-date');
+  if (daysLeft < 0) {
+    taskDate.classList.add('overdue');
+  } else if (daysLeft === 0) {
+    taskDate.classList.add('today');
+  }
+
+  taskDate.innerHTML = `<i class="far fa-calendar"></i><span>${daysLeftText}</span>`;
+
+  const taskTags = document.createElement('div');
+  taskTags.classList.add('task-tags');
+  if (Array.isArray(task.tags)) {
+    taskTags.innerHTML = task.tags
+      .map(tag => `<span class="tag tag-${tag}">${tag}</span>`)
+      .join('');
+  }
+
+  taskFooter.appendChild(taskDate);
+  taskFooter.appendChild(taskTags);
+
+  // Ensamblar tarjeta
+  taskCard.appendChild(taskHeader);
+  taskCard.appendChild(title);
+  taskCard.appendChild(description);
+  taskCard.appendChild(taskFooter);
+
+  return taskCard;
+};
 
 // Abrir modal para crear nueva tarea
 function openNewTaskModal() {
@@ -271,6 +355,8 @@ function openNewTaskModal() {
 
   // Guardar ID de tarea (null para nueva tarea)
   modal.dataset.taskId = '';
+
+  loadUsers();
 }
 
 // Abrir modal para editar tarea
@@ -279,6 +365,7 @@ function openEditTaskModal(task) {
   document.getElementById('task-title').value = task.title;
   document.getElementById('task-description').value = task.description || '';
   document.getElementById('task-date').value = formatDateForInput(task.dueDate);
+  document.getElementById('task-user').value = task.users[0].id;
   document.getElementById('task-status').value = task.status;
   document.getElementById('task-priority').value = task.priority;
 
@@ -307,6 +394,8 @@ function openEditTaskModal(task) {
 
   // Guardar ID de tarea
   modal.dataset.taskId = task._id;
+
+  loadUsers();
 }
 
 // Abrir modal para confirmar eliminación
@@ -328,6 +417,7 @@ async function saveTask() {
     const title = document.getElementById('task-title').value;
     const description = document.getElementById('task-description').value;
     const dueDate = document.getElementById('task-date').value;
+    const users = document.getElementById('task-user').value;
     const status = document.getElementById('task-status').value;
     const priority = document.getElementById('task-priority').value;
 
@@ -342,6 +432,7 @@ async function saveTask() {
       title,
       description,
       dueDate,
+      users,
       status,
       priority,
       tags
@@ -403,7 +494,8 @@ async function deleteTask(taskId) {
     deleteModal.classList.add('hidden');
 
     // Eliminar tarea del array local
-    handleTaskDelete(taskId);
+    tasks = tasks.filter(task => task._id !== taskId);
+    renderTasks();
   } catch (error) {
     console.error('Error al eliminar tarea:', error);
   }
@@ -435,6 +527,17 @@ function validateTaskForm() {
     dateError.textContent = '';
   }
 
+  // Validar usuarios
+  const userInput = document.getElementById('task-user');
+  const userError = document.getElementById('error-user');
+
+  if (!userInput.value) {
+    userError.textContent = 'Asigna al menos un usuario';
+    isValid = false;
+  } else {
+    userError.textContent = '';
+  }
+
   // Validar estado
   const statusInput = document.getElementById('task-status');
   const statusError = document.getElementById('error-status');
@@ -458,6 +561,14 @@ function validateTaskForm() {
   }
 
   return isValid;
+}
+
+function handleTaskDelete(taskId) {
+  // Eliminar evento del array
+  tasks = tasks.filter(task => task._id !== taskId);
+
+  // Renderizar eventos
+  renderTasks();
 }
 
 // Configurar eventos
@@ -506,16 +617,16 @@ function setupEventListeners() {
   });
 
   // Formulario de búsqueda de noticias
-  const newsSearchForm = document.getElementById('news-search-form');
-  if (newsSearchForm) {
-    newsSearchForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const query = document.getElementById('news-search').value.trim();
-      if (query) {
-        loadNews(query);
-      }
-    });
-  }
+  // const newsSearchForm = document.getElementById('news-search-form');
+  // if (newsSearchForm) {
+  //   newsSearchForm.addEventListener('submit', e => {
+  //     e.preventDefault();
+  //     const query = document.getElementById('news-search').value.trim();
+  //     if (query) {
+  //       loadNews(query);
+  //     }
+  //   });
+  // }
 
   // Cerrar modales al hacer clic fuera
   window.addEventListener('click', e => {

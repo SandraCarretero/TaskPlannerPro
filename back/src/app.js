@@ -33,7 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/uploads", express.static(path.join(__dirname, "../uploads")));
 
-app.use(express.static(path.join(__dirname, "../../frontend")));
+app.use(express.static(path.join(__dirname, "../../fron")));
 
 // Rutas de la API
 app.use("/api/auth", authRoutes);
@@ -45,7 +45,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/chat', chatRoutes);
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "../../front/index.html"));
 });
 
 // Middleware de manejo de errores

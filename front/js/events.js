@@ -69,7 +69,8 @@ async function getCurrentUser() {
     currentUser = data.data.user;
 
     // Actualizar UI con información del usuario
-    titleElement.textContent = `Eventos de ${currentUser.name}`;
+    const firstName = currentUser.name.split(' ')[0];
+    titleElement.textContent = `Eventos de ${firstName}`;
 
     // Mostrar avatar si existe
     const avatarElement = document.getElementById('avatar');
@@ -78,6 +79,10 @@ async function getCurrentUser() {
     } else {
       // Mostrar iniciales si no hay avatar
       avatarElement.textContent = getInitials(currentUser.name);
+    }
+
+    if (currentUser.role === 'admin') {
+      addEventBtn.style.display = 'flex';
     }
   } catch (error) {
     console.error('Error al obtener usuario:', error);
@@ -88,7 +93,12 @@ async function getCurrentUser() {
 // Cargar eventos desde la API
 async function loadEvents() {
   try {
-    const response = await fetch(`${API_URL}/events`, {
+    const eventUrl =
+      currentUser.role === 'admin'
+        ? `${API_URL}/events/admin/all`
+        : `${API_URL}/events`;
+    console.log(currentUser.role);
+    const response = await fetch(eventUrl, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -106,6 +116,35 @@ async function loadEvents() {
   } catch (error) {
     console.error('Error al cargar eventos:', error);
   }
+}
+
+const loadUsers = async () => {
+  try {
+    const response = await fetch(`${API_URL}/users`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) throw new Error('No se pudieron cargar los usuarios');
+
+    const data = await response.json();
+    populateUserDropdown(data.data.users);
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error);
+  }
+};
+
+function populateUserDropdown(users) {
+  const userSelect = document.getElementById('event-user');
+  userSelect.innerHTML = '<option value="">Selecciona un usuario</option>';
+
+  users.forEach(user => {
+    const option = document.createElement('option');
+    option.value = user._id;
+    option.textContent = user.name;
+    userSelect.appendChild(option);
+  });
 }
 
 // Renderizar eventos
@@ -163,19 +202,18 @@ function renderEvents() {
 }
 
 // Crear elemento HTML para un evento
-function createEventElement(event) {
-  const eventElement = document.createElement('div');
-  eventElement.className = 'event-card';
-  eventElement.dataset.id = event._id;
+const createEventElement = event => {
+  const userRole = currentUser.role;
+
+  const eventCard = document.createElement('div');
+  eventCard.className = 'event-card';
+  eventCard.setAttribute('data-id', event._id);
 
   // Formatear fechas
   const startDate = new Date(event.startDate);
   const endDate = new Date(event.endDate);
 
   const formattedStartDate = startDate.toLocaleDateString('es', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
     hour: '2-digit',
     minute: '2-digit'
   });
@@ -185,111 +223,82 @@ function createEventElement(event) {
     minute: '2-digit'
   });
 
-  // Crear contenido HTML
-  eventElement.innerHTML = `
-    <div class="event-header">
-      <h3>${event.title}</h3>
-      <div class="event-actions">
-        <button class="event-action edit-event" title="Editar">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="event-action delete-event" title="Eliminar">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    <div class="event-details">
-      <div class="event-date">
-        <i class="far fa-calendar"></i>
-        <span>${formatEventDateDisplay(startDate, endDate)}</span>
-      </div>
-      ${
-        event.location
-          ? `
-        <div class="event-location">
-          <i class="fas fa-map-marker-alt"></i>
-          <span>${event.location}</span>
-        </div>
-      `
-          : ''
-      }
-      ${
-        event.description
-          ? `
-        <div class="event-description">
-          <p>${event.description}</p>
-        </div>
-      `
-          : ''
-      }
-    </div>
-  `;
+  // Header
+  const eventHeader = document.createElement('div');
+  eventHeader.classList.add('event-header');
 
-  // Agregar eventos
-  const editBtn = eventElement.querySelector('.edit-event');
-  const deleteBtn = eventElement.querySelector('.delete-event');
+  // Nombre del evento
+  const eventTitle = document.createElement('h3');
+  eventTitle.classList.add('event-title');
+  eventTitle.textContent = event.title;
+  eventHeader.appendChild(eventTitle);
 
-  editBtn.addEventListener('click', () => openEditEventModal(event));
-  deleteBtn.addEventListener('click', () => openDeleteEventModal(event._id));
+  // Fecha del evento
+  const eventDate = document.createElement('div');
+  eventDate.classList.add('event-date');
 
-  return eventElement;
-}
+  const calendarIcon = document.createElement('i');
+  calendarIcon.classList.add('far', 'fa-calendar');
 
-function formatEventDateDisplay(startDate, endDate) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const startDay = new Date(startDate);
-  startDay.setHours(0, 0, 0, 0);
-
-  const endDay = new Date(endDate);
-  endDay.setHours(0, 0, 0, 0);
-
-  // Formatear la fecha de inicio
-  let formattedStartDate = startDate.toLocaleDateString('es', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  // Si la fecha de inicio es hoy, reemplazar con "hoy"
-  if (startDay.getTime() === today.getTime()) {
-    formattedStartDate = formattedStartDate.replace(
-      startDate.toLocaleDateString('es', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-      }),
-      'hoy'
-    );
-  }
-
-  // Formatear la fecha de fin
-  const formattedEndDate = endDate.toLocaleDateString('es', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  // Calcular días restantes o si el evento ha finalizado
+  const dateSpan = document.createElement('span');
   const now = new Date();
+  const startDateIsToday = startDate.toDateString() === now.toDateString();
 
-  if (now > endDate) {
-    // El evento ha finalizado
-    return `${formattedStartDate} - ${formattedEndDate} <span style="color: red; font-weight: bold;">finalizado</span>`;
+  if (endDate < now) {
+    dateSpan.textContent = 'Finalizado';
+    eventDate.classList.add('finalizado');
+  } else if (startDateIsToday) {
+    dateSpan.textContent = 'Hoy';
+    eventDate.classList.add('hoy');
   } else {
-    // El evento está en curso o es futuro
-    const daysRemaining = Math.ceil((endDay - today) / (1000 * 60 * 60 * 24));
-    let daysText = '';
-
-    if (daysRemaining > 0) {
-      daysText = `(${daysRemaining} día${daysRemaining !== 1 ? 's' : ''})`;
-    }
-
-    return `${formattedStartDate} - ${formattedEndDate} ${daysText}`;
+    dateSpan.textContent = `${formattedStartDate} - ${formattedEndDate}`;
   }
-}
+
+  eventDate.appendChild(calendarIcon);
+  eventDate.appendChild(dateSpan);
+
+  // Botones solo si es admin
+  if (userRole === 'admin') {
+    const eventActions = document.createElement('div');
+    eventActions.classList.add('event-actions');
+
+    const editButton = document.createElement('button');
+    editButton.classList.add('event-action', 'edit-event');
+    editButton.setAttribute('title', 'Editar');
+    editButton.innerHTML = '<i class="fas fa-edit"></i>';
+
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('event-action', 'delete-event');
+    deleteButton.setAttribute('title', 'Eliminar');
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+
+    editButton.addEventListener('click', () => openEditEventModal(event));
+    deleteButton.addEventListener('click', () =>
+      openDeleteEventModal(event._id)
+    );
+
+    eventActions.appendChild(editButton);
+    eventActions.appendChild(deleteButton);
+    eventHeader.appendChild(eventActions);
+  }
+
+  // Descripción del evento
+  const eventDescription = document.createElement('p');
+  eventDescription.classList.add('event-description');
+  eventDescription.textContent = event.description || 'Sin descripción';
+
+  // Footer (opcional: para añadir etiquetas u otros detalles en el futuro)
+  const eventFooter = document.createElement('div');
+  eventFooter.classList.add('event-footer');
+  eventFooter.appendChild(eventDate);
+
+  // Ensamblar tarjeta
+  eventCard.appendChild(eventHeader);
+  eventCard.appendChild(eventDescription);
+  eventCard.appendChild(eventFooter);
+
+  return eventCard;
+};
 
 // Abrir modal para crear nuevo evento
 function openNewEventModal() {
@@ -298,6 +307,7 @@ function openNewEventModal() {
   document.getElementById('event-description').value = '';
   document.getElementById('event-start-date').value = '';
   document.getElementById('event-end-date').value = '';
+  document.getElementById('event-user').value = '';
   document.getElementById('event-location').value = '';
 
   // Limpiar mensajes de error
@@ -313,6 +323,8 @@ function openNewEventModal() {
 
   // Guardar ID de evento (null para nuevo evento)
   modal.dataset.eventId = '';
+
+  loadUsers();
 }
 
 // Abrir modal para editar evento
@@ -326,6 +338,7 @@ function openEditEventModal(event) {
   document.getElementById('event-end-date').value = formatDateTimeForInput(
     event.endDate
   );
+  document.getElementById('event-user').value = event.users[0].id;
   document.getElementById('event-location').value = event.location || '';
 
   // Limpiar mensajes de error
@@ -341,6 +354,8 @@ function openEditEventModal(event) {
 
   // Guardar ID de evento
   modal.dataset.eventId = event._id;
+
+  loadUsers();
 }
 
 // Abrir modal para confirmar eliminación
@@ -363,6 +378,7 @@ async function saveEvent() {
     const description = document.getElementById('event-description').value;
     const startDate = document.getElementById('event-start-date').value;
     const endDate = document.getElementById('event-end-date').value;
+    const users = document.getElementById('event-user').value;
     const location = document.getElementById('event-location').value;
 
     // Crear objeto con datos del evento
@@ -371,12 +387,14 @@ async function saveEvent() {
       description,
       startDate,
       endDate,
+      users,
       location
     };
 
     let response;
 
     if (eventId) {
+      console.log(eventId)
       // Actualizar evento existente
       response = await fetch(`${API_URL}/events/${eventId}`, {
         method: 'PATCH',
@@ -430,7 +448,8 @@ async function deleteEvent(eventId) {
     deleteModal.classList.add('hidden');
 
     // Eliminar evento del array local
-    handleEventDelete(eventId);
+    events = events.filter(event => event._id !== eventId);
+    renderEvents();
   } catch (error) {
     console.error('Error al eliminar evento:', error);
   }
@@ -477,27 +496,20 @@ function validateEventForm() {
     endDateError.textContent = '';
   }
 
+  // Validar usuarios
+  const userInput = document.getElementById('event-user');
+  const userError = document.getElementById('error-user');
+
+  if (!userInput.value) {
+    userError.textContent = 'Asigna un usuario';
+    isValid = false;
+  } else {
+    userError.textContent = '';
+  }
+
   return isValid;
 }
 
-// Manejar actualización de evento desde WebSocket
-function handleEventUpdate(event) {
-  // Buscar si el evento ya existe en el array
-  const index = events.findIndex(e => e._id === event._id);
-
-  if (index !== -1) {
-    // Actualizar evento existente
-    events[index] = event;
-  } else {
-    // Agregar nuevo evento
-    events.push(event);
-  }
-
-  // Renderizar eventos
-  renderEvents();
-}
-
-// Manejar eliminación de evento desde WebSocket
 function handleEventDelete(eventId) {
   // Eliminar evento del array
   events = events.filter(event => event._id !== eventId);

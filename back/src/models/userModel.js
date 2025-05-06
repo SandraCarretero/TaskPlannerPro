@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema({
     required: [true, 'La contraseña es obligatoria'],
     minlength: [6, 'La contraseña debe tener al menos 6 caracteres']
   },
+  isOnline: {
+    type: Boolean,
+    default: false
+  },
+  lastActive: {
+    type: Date,
+    default: Date.now
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
