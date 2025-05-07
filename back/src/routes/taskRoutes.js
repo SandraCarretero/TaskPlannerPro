@@ -11,6 +11,7 @@ router.get("/", taskController.getTasks)
 router.post("/", taskController.createTask)
 router.get("/:id", taskController.getTask)
 router.patch("/:id", taskController.updateTask)
+router.patch("/:id/status", taskController.updateTaskStatus)
 router.delete("/:id", taskController.deleteTask)
 
 // Rutas solo para administradores

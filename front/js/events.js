@@ -230,7 +230,7 @@ const createEventElement = event => {
   // Nombre del evento
   const eventTitle = document.createElement('h3');
   eventTitle.classList.add('event-title');
-  eventTitle.textContent = event.title;
+  eventTitle.textContent = capitalizeFirstLetter(event.title);
   eventHeader.appendChild(eventTitle);
 
   // Fecha del evento
@@ -285,7 +285,7 @@ const createEventElement = event => {
   // Descripción del evento
   const eventDescription = document.createElement('p');
   eventDescription.classList.add('event-description');
-  eventDescription.textContent = event.description || 'Sin descripción';
+  eventDescription.textContent = capitalizeFirstLetter(event.description) || 'Sin descripción';
 
   // Footer (opcional: para añadir etiquetas u otros detalles en el futuro)
   const eventFooter = document.createElement('div');
@@ -559,6 +559,10 @@ function setupEventListeners() {
 function formatDateTimeForInput(dateString) {
   const date = new Date(dateString);
   return date.toISOString().slice(0, 16);
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // Obtener iniciales de un nombre

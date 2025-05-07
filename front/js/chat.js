@@ -1,3 +1,33 @@
+import { loadCurrentWeather } from './weather.js';
+
+const API_URL = 'http://localhost:3000/api';
+let currentUser = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Verificar si hay un token en localStorage
+  const token = localStorage.getItem('token');
+  if (!token) {
+    // Redirigir a la página de login si no hay token
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    // Obtener información del usuario actual
+    await getCurrentUser();
+
+    loadCurrentWeather('Madrid');
+  } catch (error) {
+    console.error('Error al inicializar la aplicación:', error);
+
+    // Si hay un error de autenticación, redirigir al login
+    if (error.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+  }
+});
+
 // Módulo de chat
 const ChatModule = (() => {
   // Variables privadas
@@ -29,13 +59,6 @@ const ChatModule = (() => {
       socket.addEventListener('open', event => {
         console.log('✅ Conectado al servidor WebSocket');
         isConnected = true;
-
-        // Notificar al usuario que la conexión está establecida
-        const statusElement = document.getElementById('connection-status');
-        if (statusElement) {
-          statusElement.textContent = 'Conectado';
-          statusElement.className = 'status-connected';
-        }
 
         socket.send(
           JSON.stringify({
@@ -90,13 +113,6 @@ const ChatModule = (() => {
         );
         isConnected = false;
 
-        // Notificar al usuario que la conexión se ha perdido
-        const statusElement = document.getElementById('connection-status');
-        if (statusElement) {
-          statusElement.textContent = 'Desconectado - Reconectando...';
-          statusElement.className = 'status-disconnected';
-        }
-
         // Intentar reconectar después de un tiempo
         console.log('Intentando reconectar en 5 segundos...');
         setTimeout(initWebSocket, 5000);
@@ -105,13 +121,6 @@ const ChatModule = (() => {
       socket.addEventListener('error', event => {
         console.error('Error de WebSocket:', event);
         isConnected = false;
-
-        // Notificar al usuario que hay un error de conexión
-        const statusElement = document.getElementById('connection-status');
-        if (statusElement) {
-          statusElement.textContent = 'Error de conexión';
-          statusElement.className = 'status-error';
-        }
       });
     } catch (error) {
       console.error('Error al inicializar WebSocket:', error);
@@ -129,15 +138,67 @@ const ChatModule = (() => {
         console.log(data.payload.message);
         break;
 
+      case 'CONVERSATION_STARTED':
+        const newConversationId = data.payload.conversationId;
+
+        // Forzar recarga de las conversaciones desde el servidor
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(
+            JSON.stringify({
+              type: 'PAGE_LOADED',
+              payload: {
+                page: 'chat',
+                timestamp: new Date().toISOString()
+              }
+            })
+          );
+        }
+
+        // Esperar un poco y seleccionar la nueva conversación
+        setTimeout(() => {
+          selectConversation(newConversationId);
+
+          // Activar la pestaña de conversaciones
+          const conversationsTab = document.querySelector(
+            '.chat-tab[data-tab="conversations"]'
+          );
+          if (conversationsTab) {
+            conversationsTab.click();
+          }
+        }, 500); // Puedes ajustar el tiempo si es necesario
+
+        break;
+
       case 'CONVERSATIONS_LOADED':
         // Filtrar para excluir grupos
         conversations = data.payload.conversations.filter(
           conv => !conv.isGroup
         );
-        renderConversations(conversations);
 
-        if (conversations.length > 0 && !currentConversationId) {
-          selectConversation(conversations[0]._id);
+        // Solo renderizar conversaciones si hay alguna
+        if (conversations.length > 0) {
+          renderConversations(conversations);
+
+          if (!currentConversationId) {
+            selectConversation(conversations[0]._id);
+          }
+
+          const conversationsTab = document.querySelector(
+            '.chat-tab[data-tab="conversations"]'
+          );
+          if (conversationsTab) {
+            conversationsTab.click();
+          }
+        } else {
+          console.log(
+            'No hay conversaciones, manteniendo la lista de usuarios'
+          );
+          const usersTab = document.querySelector(
+            '.chat-tab[data-tab="users"]'
+          );
+          if (usersTab) {
+            usersTab.click();
+          }
         }
         break;
 
@@ -159,8 +220,23 @@ const ChatModule = (() => {
 
           markMessagesAsRead(conversation, [message]);
         } else {
-          // Reproducir sonido de notificación si no es la conversación actual
-          playNotificationSound();
+          // Si no estamos en la conversación, asegurarnos de que aparezca el indicador de mensaje no leído
+          if (message.sender._id !== currentUser._id) {
+            const contactElement = document.querySelector(
+              `.chat-contact[data-conversation-id="${conversation}"]`
+            );
+
+            if (contactElement) {
+              // Solo añadir el punto si no existe ya
+              if (!contactElement.querySelector('.unread-dot')) {
+                const dotElement = document.createElement('span');
+                dotElement.className = 'unread-dot';
+                contactElement
+                  .querySelector('.contact-meta')
+                  .appendChild(dotElement);
+              }
+            }
+          }
         }
         break;
 
@@ -181,17 +257,20 @@ const ChatModule = (() => {
         alert(`Error: ${data.payload.message}`);
         break;
 
+      case 'AUTH_SUCCESS':
+        console.log('Autenticación exitosa:', data.payload);
+        // Puedes actualizar la UI para mostrar que estás autenticado
+        break;
+
+      case 'AUTH_ERROR':
+        console.error('Error de autenticación:', data.payload.message);
+        // Mostrar mensaje de error al usuario
+        alert('Error de autenticación: ' + data.payload.message);
+        break;
+
       default:
         console.log(`Tipo de mensaje no manejado: ${data.type}`);
     }
-  }
-
-  // Reproducir sonido de notificación
-  function playNotificationSound() {
-    const audio = new Audio('/notification.mp3');
-    audio.play().catch(error => {
-      console.error('Error al reproducir sonido de notificación:', error);
-    });
   }
 
   // Actualizar estado de escritura
@@ -240,6 +319,28 @@ const ChatModule = (() => {
     }
   }
 
+  // Configurar pestañas
+  function setupTabs() {
+    const tabs = document.querySelectorAll('.chat-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Desactivar todas las pestañas
+        tabs.forEach(t => t.classList.remove('active'));
+        // Activar la pestaña seleccionada
+        tab.classList.add('active');
+
+        // Ocultar todos los contenidos
+        document.querySelectorAll('.chat-tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+
+        // Mostrar el contenido correspondiente
+        const tabName = tab.dataset.tab;
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+      });
+    });
+  }
+
   // Configurar eventos de la interfaz
   function setupEventListeners() {
     const sendButton = document.getElementById('send-message');
@@ -253,56 +354,58 @@ const ChatModule = (() => {
         }
       });
 
-      messageInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') {
-          const text = messageInput.value.trim();
-          if (text) {
-            sendMessage(text);
-          }
-        }
-      });
-
-      // Añadir evento para indicador de escritura
-      let typingTimeout;
-      messageInput.addEventListener('input', () => {
-        if (
-          isConnected &&
-          socket.readyState === WebSocket.OPEN &&
-          currentConversationId
-        ) {
-          socket.send(
-            JSON.stringify({
-              type: 'TYPING_STATUS',
-              payload: {
-                conversationId: currentConversationId,
-                isTyping: true,
-                timestamp: new Date().toISOString()
-              }
-            })
-          );
-
-          // Limpiar timeout anterior si existe
-          if (typingTimeout) {
-            clearTimeout(typingTimeout);
-          }
-
-          // Establecer nuevo timeout para enviar estado de "no escribiendo" después de 2 segundos
-          typingTimeout = setTimeout(() => {
-            if (isConnected && socket.readyState === WebSocket.OPEN) {
-              socket.send(
-                JSON.stringify({
-                  type: 'TYPING_STATUS',
-                  payload: {
-                    conversationId: currentConversationId,
-                    isTyping: false,
-                    timestamp: new Date().toISOString()
-                  }
-                })
-              );
+      // Manejar clics en conversaciones
+      const conversationsContainer = document.getElementById(
+        'conversations-container'
+      );
+      if (conversationsContainer) {
+        conversationsContainer.addEventListener('click', e => {
+          const contactElement = e.target.closest('.chat-contact');
+          if (contactElement) {
+            const conversationId = contactElement.dataset.conversationId;
+            if (conversationId) {
+              selectConversation(conversationId);
             }
-          }, 2000);
-        }
-      });
+          }
+        });
+      }
+
+      // Manejar clics en usuarios
+      const usersContainer = document.getElementById('users-container');
+      if (usersContainer) {
+        usersContainer.addEventListener('click', e => {
+          const contactElement = e.target.closest('.chat-contact');
+          if (contactElement) {
+            const contactId = contactElement.dataset.contactId;
+            if (contactId) {
+              startOrOpenConversation(contactId);
+            }
+          }
+        });
+      }
+
+      const chatSearch = document.getElementById('chat-search');
+      if (chatSearch) {
+        chatSearch.addEventListener('input', e => {
+          const searchTerm = e.target.value.toLowerCase();
+          const activeTab =
+            document.querySelector('.chat-tab.active').dataset.tab;
+          const container = document.getElementById(`${activeTab}-container`);
+
+          if (container) {
+            container.querySelectorAll('.chat-contact').forEach(contact => {
+              const contactName = contact
+                .querySelector('.contact-name')
+                .textContent.toLowerCase();
+              if (contactName.includes(searchTerm)) {
+                contact.style.display = 'flex';
+              } else {
+                contact.style.display = 'none';
+              }
+            });
+          }
+        });
+      }
     }
 
     const chatContacts = document.getElementById('chat-contacts');
@@ -343,6 +446,12 @@ const ChatModule = (() => {
 
   // Iniciar o abrir una conversación con un usuario
   function startOrOpenConversation(userId) {
+    if (userId === currentUser._id) {
+      console.error('No puedes iniciar una conversación contigo mismo');
+      alert('No puedes iniciar una conversación contigo mismo');
+      return;
+    }
+
     const existingConversation = conversations.find(
       c => !c.isGroup && c.participants.some(p => p._id === userId)
     );
@@ -354,11 +463,9 @@ const ChatModule = (() => {
         console.log(`Iniciando nueva conversación con usuario ${userId}`);
         socket.send(
           JSON.stringify({
-            type: 'CHAT_MESSAGE',
+            type: 'START_CONVERSATION',
             payload: {
               recipientId: userId,
-              text: '¡Hola! He iniciado una conversación contigo.',
-              timestamp: new Date().toISOString(),
               token: authToken // Añadir el token explícitamente en el payload
             }
           })
@@ -385,10 +492,18 @@ const ChatModule = (() => {
 
   // Renderizar lista de conversaciones
   function renderConversations(conversations) {
-    const chatContacts = document.getElementById('chat-contacts');
-    if (!chatContacts) return;
+    const conversationsContainer = document.getElementById(
+      'conversations-container'
+    );
+    if (!conversationsContainer) return;
 
-    chatContacts.innerHTML = '';
+    conversationsContainer.innerHTML = '';
+
+    if (conversations.length === 0) {
+      conversationsContainer.innerHTML =
+        '<div class="no-conversations">No hay conversaciones</div>';
+      return;
+    }
 
     conversations.forEach(conversation => {
       let displayName, avatar, lastMessage, unreadCount;
@@ -409,9 +524,6 @@ const ChatModule = (() => {
         } else {
           avatar = null; // Se usarán iniciales
         }
-
-        const isOnline = otherParticipant?.isOnline;
-        const statusClass = isOnline ? 'online' : 'offline';
       } else {
         // Saltamos las conversaciones de grupo
         return;
@@ -429,7 +541,13 @@ const ChatModule = (() => {
         currentConversationId === conversation._id ? ' active' : ''
       }`;
       contactElement.dataset.conversationId = conversation._id;
+      contactElement.dataset.contactId = otherParticipant._id; // Añadir también el ID de contacto
       contactElement.dataset.isGroup = 'false';
+
+      const showUnreadDot =
+        conversation.lastMessage &&
+        !conversation.lastMessage.read &&
+        conversation.lastMessage.sender !== currentUser._id;
 
       contactElement.innerHTML = `
         <div class="contact-avatar profile-avatar">
@@ -454,13 +572,14 @@ const ChatModule = (() => {
           }</div>
           ${
             unreadCount > 0
-              ? `<div class="contact-unread">${unreadCount}</div>`
+              ? `<div class="contact-unread-indicator"></div>`
               : ''
           }
+          ${showUnreadDot ? '<span class="unread-dot"></span>' : ''}
         </div>
       `;
 
-      chatContacts.appendChild(contactElement);
+      conversationsContainer.appendChild(contactElement);
     });
   }
 
@@ -580,8 +699,20 @@ const ChatModule = (() => {
         '<div class="loading-messages">Cargando mensajes...</div>';
     }
 
+    if (!conversationId) {
+      console.error('ID de conversación no válido');
+      if (messagesContainer) {
+        messagesContainer.innerHTML =
+          '<div class="error-messages">Error: ID de conversación no válido</div>';
+      }
+      return;
+    }
+
+    console.log(`Solicitando mensajes para la conversación: ${conversationId}`);
+
     // Solicitar mensajes al servidor
-    fetch(`${API_URL}/chat/conversations/${conversationId}/messages`, {
+
+    fetch(`${API_URL}/chat/messages/${conversationId}`, {
       headers: {
         Authorization: `Bearer ${authToken}`
       }
@@ -696,7 +827,7 @@ const ChatModule = (() => {
     if (isConnected && socket && socket.readyState === WebSocket.OPEN) {
       socket.send(
         JSON.stringify({
-          type: 'MARK_READ',
+          type: 'MARK_AS_READ',
           payload: {
             conversationId,
             messageIds,
@@ -704,6 +835,20 @@ const ChatModule = (() => {
           }
         })
       );
+    }
+
+    const conversation = conversations.find(c => c._id === conversationId);
+    if (conversation && conversation.lastMessage) {
+      conversation.lastMessage.read = true;
+
+      const contactElement = document.querySelector(
+        `.chat-contact[data-conversation-id="${conversationId}"]`
+      );
+
+      if (contactElement) {
+        const unreadDot = contactElement.querySelector('.unread-dot');
+        if (unreadDot) unreadDot.remove();
+      }
     }
   }
 
@@ -761,6 +906,24 @@ const ChatModule = (() => {
         }
       }
     });
+    const conversation = conversations.find(c => c._id === conversationId);
+    if (conversation && conversation.lastMessage) {
+      const isLastMessageUnread =
+        !conversation.lastMessage.read &&
+        messageIds.includes(conversation.lastMessage._id);
+
+      if (isLastMessageUnread) {
+        conversation.lastMessage.read = true;
+
+        const contactElement = document.querySelector(
+          `.chat-contact[data-conversation-id="${conversationId}"]`
+        );
+        if (contactElement) {
+          const unreadDot = contactElement.querySelector('.unread-dot');
+          if (unreadDot) unreadDot.remove();
+        }
+      }
+    }
   }
 
   // Inicializar el módulo
@@ -772,7 +935,38 @@ const ChatModule = (() => {
       return;
     }
 
-    // Cargar usuarios
+    // Primero obtener información del usuario actual
+    fetchCurrentUser()
+      .then(userData => {
+        if (!userData || !userData.data || !userData.data.user) {
+          throw new Error('No se pudo obtener información del usuario');
+        }
+
+        currentUser = userData.data.user;
+        console.log('Usuario actual:', currentUser);
+
+        // Configurar pestañas
+        setupTabs();
+
+        // Cargar usuarios
+        loadUsers();
+
+        // Inicializar WebSocket con el token de autenticación
+        initWebSocket();
+
+        // Configurar eventos de la interfaz
+        setupEventListeners();
+      })
+      .catch(error => {
+        console.error('Error al inicializar chat:', error);
+
+        if (error.message.includes('No autorizado')) {
+          localStorage.removeItem('token');
+        }
+      });
+  }
+
+  function loadUsers() {
     fetch(`${API_URL}/chat/users`, {
       headers: {
         Authorization: `Bearer ${authToken}`
@@ -797,15 +991,26 @@ const ChatModule = (() => {
           return;
         }
 
-        const contactsContainer = document.getElementById('chat-contacts');
-        if (!contactsContainer) {
-          console.error('No se encontró el contenedor de contactos');
+        const usersContainer = document.getElementById('users-container');
+        if (!usersContainer) {
+          console.error('No se encontró el contenedor de usuarios');
           return;
         }
 
-        contactsContainer.innerHTML = '';
+        usersContainer.innerHTML = '';
 
-        users.forEach(user => {
+        // Filtrar para asegurarse de que el usuario actual no aparezca
+        const filteredUsers = users.filter(
+          user => user._id !== currentUser._id
+        );
+
+        if (filteredUsers.length === 0) {
+          usersContainer.innerHTML =
+            '<div class="no-contacts">No hay otros usuarios disponibles</div>';
+          return;
+        }
+
+        filteredUsers.forEach(user => {
           const contact = document.createElement('div');
           contact.className = 'chat-contact';
           contact.dataset.contactId = user._id;
@@ -832,31 +1037,11 @@ const ChatModule = (() => {
             </div>
           `;
 
-          contactsContainer.appendChild(contact);
+          usersContainer.appendChild(contact);
         });
       })
       .catch(error => {
-        console.error('Error al cargar los usuarios:', error);
-
-        if (error.message.includes('No autorizado')) {
-          localStorage.removeItem('token');
-        }
-      });
-
-    // Obtener información del usuario actual
-    fetchCurrentUser()
-      .then(user => {
-        currentUser = user;
-        console.log('Usuario actual:', currentUser);
-
-        // Inicializar WebSocket con el token de autenticación
-        initWebSocket();
-
-        // Configurar eventos de la interfaz
-        setupEventListeners();
-      })
-      .catch(error => {
-        console.error('Error al obtener usuario actual:', error);
+        console.error('Error al cargar usuarios:', error);
       });
   }
 
@@ -883,6 +1068,35 @@ const ChatModule = (() => {
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', ChatModule.init);
+
+async function getCurrentUser() {
+  try {
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw { status: response.status, message: 'Error al obtener usuario' };
+    }
+
+    const data = await response.json();
+    currentUser = data.data.user;
+
+    // Mostrar avatar si existe
+    const avatarElement = document.getElementById('avatar');
+    if (currentUser.avatar) {
+      avatarElement.style.backgroundImage = `url(${API_URL}${currentUser.avatar})`;
+    } else {
+      // Mostrar iniciales si no hay avatar
+      avatarElement.textContent = getInitials(currentUser.name);
+    }
+  } catch (error) {
+    console.error('Error al obtener usuario:', error);
+    throw error;
+  }
+}
 
 function getInitials(name) {
   return name

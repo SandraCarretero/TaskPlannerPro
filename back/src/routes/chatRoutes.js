@@ -8,12 +8,15 @@ const { protect } = require('../middlewares/authMiddleware');
 // Obtener todos los usuarios para el chat (excepto el usuario actual)
 router.get('/users', protect, async (req, res) => {
   try {
+    console.log('Solicitando usuarios para el chat. Usuario actual:', req.user.id);
     // Nota: En tu middleware, guardas el ID como req.user.id, no como req.user._id
     const users = await User.find({ _id: { $ne: req.user.id } })
-      .select('name email avatar lastActive')
+      .select('name email avatar lastActive isOnline')
       .sort({ name: 1 });
 
-    res.json(users);
+    console.log(`Se encontraron ${users.length} usuarios`);
+
+    res.status(200).json(users);
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
     res.status(500).json({ message: 'Error al obtener usuarios' });

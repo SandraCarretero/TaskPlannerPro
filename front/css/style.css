@@ -200,6 +200,7 @@ body {
   display: flex;
   gap: 10px;
   align-items: center;
+  grid-column: 4 / 4;
 }
 
 .tasks-columns {
@@ -298,7 +299,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   font-size: 0.8rem;
-  flex-direction: column-reverse;
+  flex-direction: row;
 }
 
 .task-date {
@@ -307,6 +308,7 @@ body {
   gap: 4px;
   color: var(--color-gray-600);
   margin-top: 10px;
+  width: max-content;
 }
 
 .task-date.overdue {
@@ -339,32 +341,17 @@ body {
 }
 
 .column-header .badge {
-  background-color: #f0f0f0;
+  background-color: var(--color-primary-hover);
   border-radius: 15px;
   padding: 3px 8px;
   font-size: 12px;
   font-weight: bold;
-  color: #666;
+  color: var(--color-primary);
   width: 27px;
   aspect-ratio: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.pending .badge {
-  background-color: var(--color-pending-bg);
-  color: var(--color-pending);
-}
-
-.progress .badge {
-  background-color: var(--color-progress-bg);
-  color: var(--color-progress);
-}
-
-.completed .badge {
-  background-color: var(--color-completed-bg);
-  color: var(--color-completed);
 }
 
 .pending .column-header {
@@ -446,6 +433,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   margin-top: 10px;
+  flex-wrap: wrap;
 }
 
 .priority-indicator {
@@ -616,6 +604,11 @@ body {
   font-size: 0.9rem;
   background-size: cover;
   background-position: center;
+}
+
+.avatar-task {
+  width: 35px;
+  aspect-ratio: 1;
 }
 
 .profile-icon {

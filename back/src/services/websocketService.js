@@ -27,7 +27,10 @@ exports.initWebSocket = server => {
     // Si hay token, verificar y asociar con el usuario
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || 'taskplanner-secret-key'
+        );
         userId = decoded.id;
 
         const userExists = await User.findById(userId).select('_id');
@@ -36,7 +39,12 @@ exports.initWebSocket = server => {
         }
 
         // Asociar este socket con el usuario
-        userSockets.set(userId, { clientId, ws });
+        if (!userSockets.has(userId)) {
+          userSockets.set(userId, { clientId, ws });
+        } else {
+          // Si ya existe una conexión para este usuario, actualizar
+          userSockets.set(userId, { clientId, ws });
+        }
 
         // Actualizar estado del usuario a "en línea"
         await User.findByIdAndUpdate(userId, {
@@ -45,8 +53,27 @@ exports.initWebSocket = server => {
         }).exec();
 
         console.log(`Usuario ${userId} conectado a WebSocket: ${clientId}`);
+
+        ws.send(
+          JSON.stringify({
+            type: 'AUTH_SUCCESS',
+            payload: {
+              userId: userId,
+              message: 'Autenticación exitosa'
+            }
+          })
+        );
       } catch (error) {
         console.error('Error al verificar token:', error);
+
+        ws.send(
+          JSON.stringify({
+            type: 'AUTH_ERROR',
+            payload: {
+              message: 'Error de autenticación: ' + error.message
+            }
+          })
+        );
       }
     } else {
       console.log(`Cliente anónimo conectado a WebSocket: ${clientId}`);
@@ -59,6 +86,9 @@ exports.initWebSocket = server => {
 
         // Manejar diferentes tipos de mensajes
         switch (data.type) {
+          case 'START_CONVERSATION':
+            await handleStartConversation(clientId, userId, data);
+            break;
           case 'CHAT_MESSAGE':
             await handleChatMessage(clientId, userId, data);
             break;
@@ -144,7 +174,7 @@ async function sendUserConversations(userId, ws) {
       .populate('participants', 'name email avatar isOnline lastActive')
       .populate({
         path: 'lastMessage',
-        select: 'text sender createdAt'
+        select: 'text sender createdAt read'
       })
       .sort({ updatedAt: -1 });
 
@@ -178,23 +208,71 @@ function broadcastUserStatus(userId, isOnline) {
   }
 }
 
+async function handleStartConversation(clientId, userId, data) {
+  const { recipientId } = data.payload;
+
+  if (!userId || !recipientId) return;
+
+  try {
+    // Verificar si ya existe
+    let conversation = await Conversation.findOne({
+      isGroup: false,
+      participants: { $all: [userId, recipientId], $size: 2 }
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        isGroup: false,
+        participants: [userId, recipientId]
+      });
+    }
+
+    // Opcional: notificar al cliente que se creó la conversación
+    const client = clients.get(clientId);
+    if (client && client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({
+          type: 'CONVERSATION_STARTED',
+          payload: {
+            conversationId: conversation._id
+          }
+        })
+      );
+    }
+
+    // También puedes actualizar la lista de conversaciones
+    if (userId) sendUserConversations(userId, client);
+    if (recipientId) {
+      const recipientSocket = userSockets.get(recipientId);
+      if (recipientSocket) {
+        sendUserConversations(recipientId, recipientSocket.ws);
+      }
+    }
+  } catch (error) {
+    console.error('Error al iniciar conversación:', error);
+  }
+}
+
 // Manejar mensajes de chat
 async function handleChatMessage(clientId, userId, data) {
   if (!userId && data.payload.token) {
     try {
-      const decoded = jwt.verify(data.payload.token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(
+        data.payload.token,
+        process.env.JWT_SECRET || 'taskplanner-secret-key'
+      );
       userId = decoded.id;
 
-      // Si podemos obtener un userId válido del token, actualizar la asociación
-      if (userId) {
-        // Asociar este socket con el usuario si no estaba ya asociado
-        const client = clients.get(clientId);
-        if (client) {
-          userSockets.set(userId, { clientId, ws: client });
-          console.log(
-            `Usuario ${userId} autenticado mediante token en mensaje`
-          );
-        }
+      const userExists = await User.findById(userId).select('_id');
+      if (!userExists) {
+        throw new Error('Usuario no encontrado');
+      }
+
+      // Asociar este socket con el usuario si no estaba ya asociado
+      const client = clients.get(clientId);
+      if (client) {
+        userSockets.set(userId, { clientId, ws: client });
+        console.log(`Usuario ${userId} autenticado mediante token en mensaje`);
       }
     } catch (error) {
       console.error('Error al verificar token en mensaje:', error);
@@ -411,6 +489,20 @@ async function handleMarkAsRead(userId, data) {
             })
           );
         }
+      }
+
+      const readerSocket = userSockets.get(userId.toString());
+      if (readerSocket && readerSocket.ws.readyState === WebSocket.OPEN) {
+        readerSocket.ws.send(
+          JSON.stringify({
+            type: 'MESSAGES_READ',
+            payload: {
+              reader: userId,
+              conversationId,
+              messageIds
+            }
+          })
+        );
       }
     }
   } catch (error) {

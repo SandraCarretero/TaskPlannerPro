@@ -51,6 +51,29 @@ exports.updateTask = async (req, res, next) => {
   }
 };
 
+exports.updateTaskStatus = async (req, res, next) => {
+  try {
+    // Extraer solo el campo de estado del body
+    const { status } = req.body;
+    
+    // Validar que el estado sea válido
+    const validStatuses = ['pending', 'progress', 'completed'];
+    if (!validStatuses.includes(status)) {
+      throw new AppError('Estado no válido', 400);
+    }
+    
+    // Crear un objeto que solo contenga el campo de estado
+    const updates = { status };
+    
+    // Usar el mismo servicio pero solo con el campo de estado
+    const task = await taskService.updateTask(req.params.id, updates);
+    
+    res.status(200).json({ status: 'success', data: { task } });
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Eliminar una tarea
 exports.deleteTask = async (req, res, next) => {
   try {

@@ -214,6 +214,7 @@ function renderTasks() {
 }
 
 const createTaskElement = task => {
+  console.log(task);
   const userRole = currentUser.role;
 
   const taskCard = document.createElement('div');
@@ -258,30 +259,6 @@ const createTaskElement = task => {
   taskPriority.appendChild(priorityLabel);
   taskHeader.appendChild(taskPriority);
 
-  // Botones solo si es admin
-  if (userRole === 'admin') {
-    const taskActions = document.createElement('div');
-    taskActions.classList.add('task-actions');
-
-    const editButton = document.createElement('button');
-    editButton.classList.add('task-action', 'edit-task');
-    editButton.setAttribute('title', 'Editar');
-    editButton.innerHTML = '<i class="fas fa-edit"></i>';
-
-    const deleteButton = document.createElement('button');
-    deleteButton.classList.add('task-action', 'delete-task');
-    deleteButton.setAttribute('title', 'Eliminar');
-    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-
-    // Agregar eventos
-    editButton.addEventListener('click', () => openEditTaskModal(task));
-    deleteButton.addEventListener('click', () => openDeleteTaskModal(task._id));
-
-    taskActions.appendChild(editButton);
-    taskActions.appendChild(deleteButton);
-    taskHeader.appendChild(taskActions);
-  }
-
   // Título
   const title = document.createElement('h3');
   title.classList.add('task-title');
@@ -315,8 +292,42 @@ const createTaskElement = task => {
       .join('');
   }
 
-  taskFooter.appendChild(taskDate);
   taskFooter.appendChild(taskTags);
+  taskFooter.appendChild(taskDate);
+
+  const taskActions = document.createElement('div');
+  taskActions.classList.add('task-actions');
+
+  const editButton = document.createElement('button');
+  editButton.classList.add('task-action', 'edit-task');
+  editButton.setAttribute('title', 'Editar');
+  editButton.innerHTML = '<i class="fas fa-edit"></i>';
+
+  editButton.addEventListener('click', () => openEditTaskModal(task));
+  taskActions.appendChild(editButton);
+  taskHeader.appendChild(taskActions);
+
+  // Botones solo si es admin
+  if (userRole === 'admin') {
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('task-action', 'delete-task');
+    deleteButton.setAttribute('title', 'Eliminar');
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+
+    // Agregar eventos
+    deleteButton.addEventListener('click', () => openDeleteTaskModal(task._id));
+
+    taskActions.appendChild(deleteButton);
+
+    const user = task.users[0];
+    console.log(user);
+    const avatarImg = document.createElement('div');
+    avatarImg.classList.add('avatar');
+    avatarImg.classList.add('avatar-task');
+    avatarImg.textContent = getInitials(user.name);
+
+    taskFooter.appendChild(avatarImg);
+  }
 
   // Ensamblar tarjeta
   taskCard.appendChild(taskHeader);
@@ -361,6 +372,8 @@ function openNewTaskModal() {
 
 // Abrir modal para editar tarea
 function openEditTaskModal(task) {
+  const userRole = currentUser.role;
+
   // Llenar formulario con datos de la tarea
   document.getElementById('task-title').value = task.title;
   document.getElementById('task-description').value = task.description || '';
@@ -387,7 +400,30 @@ function openEditTaskModal(task) {
   });
 
   // Actualizar título del modal
-  document.getElementById('modal-title').textContent = 'Editar tarea';
+  document.getElementById('modal-title').textContent =
+    userRole === 'admin' ? 'Editar tarea' : 'Actualizar estado';
+
+  const fieldsToToggle = [
+    'form-group-title',
+    'form-group-date',
+    'form-group-user',
+    'form-group-tags',
+    'form-group-description',
+    'form-group-priority'
+  ];
+
+  fieldsToToggle.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.style.display = userRole === 'admin' ? 'block' : 'none';
+    }
+  });
+
+  // Asegurarse de que el campo de estado siempre sea visible
+  const statusField = document.getElementById('form-group-status');
+  if (statusField) {
+    statusField.style.display = 'block';
+  }
 
   // Mostrar modal
   modal.classList.remove('hidden');
@@ -395,7 +431,9 @@ function openEditTaskModal(task) {
   // Guardar ID de tarea
   modal.dataset.taskId = task._id;
 
-  loadUsers();
+  if (userRole === 'admin') {
+    loadUsers();
+  }
 }
 
 // Abrir modal para confirmar eliminación
@@ -407,13 +445,47 @@ function openDeleteTaskModal(taskId) {
 // Guardar tarea (crear o actualizar)
 async function saveTask() {
   try {
-    // Validar formulario
+    const taskId = modal.dataset.taskId;
+    const userRole = currentUser.role;
+
+    // Si es usuario regular, solo validamos el estado
+    if (userRole !== 'admin') {
+      const status = document.getElementById('task-status').value;
+      const statusError = document.getElementById('error-status');
+
+      if (!status) {
+        statusError.textContent = 'El estado es obligatorio';
+        return;
+      }
+
+      // Actualizar solo el estado
+      const response = await fetch(`${API_URL}/tasks/${taskId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar estado de tarea');
+      }
+
+      // Cerrar modal
+      modal.classList.add('hidden');
+
+      // Recargar tareas
+      await loadTasks();
+      return;
+    }
+
+    // Para administradores, mantener la validación completa
     if (!validateTaskForm()) {
       return;
     }
 
     // Obtener datos del formulario
-    const taskId = modal.dataset.taskId;
     const title = document.getElementById('task-title').value;
     const description = document.getElementById('task-description').value;
     const dueDate = document.getElementById('task-date').value;

@@ -72,8 +72,20 @@
             <img src="../img/icon.svg" alt="" class="logo-img" />
             <span>Flowtask</span>
           </div>
-          <div id="connection-status" class="status-disconnected">
-            Desconectado
+          <h1 id="title" class="title">Chat</h1>
+          
+          <div class="info">
+            <div class="info-card weather-card">
+              <div class="weather-temp">
+                <img src="" alt="" id="weather-icon" class="weather-icon" />
+                <span id="weather-temp">°C</span>
+              </div>
+            </div>
+            <a href="profile.html">
+              <div class="profile">
+                <div id="avatar" class="avatar"></div>
+              </div>
+            </a>
           </div>
         </div>
 
@@ -82,15 +94,21 @@
             <div class="chat-search">
               <div class="search-input">
                 <i class="fas fa-search"></i>
-                <input
-                  type="text"
-                  placeholder="Buscar conversaciones..."
-                  id="chat-search"
-                />
+                <input type="text" placeholder="Buscar..." id="chat-search" />
               </div>
             </div>
-            <div class="chat-contacts" id="chat-contacts">
-              <!-- Contactos se cargarán dinámicamente -->
+            
+            <div class="chat-tabs">
+              <div class="chat-tab active" data-tab="conversations">Conversaciones</div>
+              <div class="chat-tab" data-tab="users">Usuarios</div>
+            </div>
+            
+            <div class="chat-tab-content active" id="conversations-tab">
+              <div id="conversations-container"></div>
+            </div>
+            
+            <div class="chat-tab-content" id="users-tab">
+              <div id="users-container"></div>
             </div>
           </div>
 
