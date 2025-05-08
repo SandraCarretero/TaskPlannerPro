@@ -1,4 +1,5 @@
 import { loadCurrentWeather } from './weather.js';
+import { fetchCurrentUser, updateUIForUser } from './utils/getUser.js';
 
 // Variables globales
 let events = [];
@@ -16,7 +17,6 @@ const cancelBtn = document.getElementById('cancel-button');
 const saveBtn = document.getElementById('save-button');
 const confirmDeleteBtn = document.getElementById('confirm-delete');
 const cancelDeleteBtn = document.getElementById('cancel-delete');
-const titleElement = document.getElementById('title');
 const roleFilterBtn = document.getElementById('role-filter-btn');
 const roleOptions = document.getElementById('role-options');
 
@@ -52,34 +52,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Obtener información del usuario actual
 const getCurrentUser = async () => {
   try {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-
-    if (!response.ok) {
-      throw { status: response.status, message: 'Error al obtener usuario' };
-    }
-
-    const data = await response.json();
-    currentUser = data.data.user;
-
-    // Actualizar UI con información del usuario
-    const firstName = currentUser.name.split(' ')[0];
-    titleElement.textContent = `Eventos de ${firstName}`;
-
-    // Mostrar avatar si existe
-    const avatarElement = document.getElementById('avatar');
-    if (currentUser.avatar) {
-      avatarElement.style.backgroundImage = `url(${API_URL}${currentUser.avatar})`;
-    } else {
-      // Mostrar iniciales si no hay avatar
-      avatarElement.textContent = getInitials(currentUser.name);
-    }
+    currentUser = await fetchCurrentUser(API_URL);
+    updateUIForUser(currentUser, API_URL, 'Eventos');
 
     if (currentUser.role === 'admin') {
       addEventBtn.style.display = 'flex';
@@ -87,7 +63,6 @@ const getCurrentUser = async () => {
     }
   } catch (error) {
     console.error('Error al obtener usuario:', error);
-    throw error;
   }
 };
 
@@ -678,14 +653,4 @@ const formatDateTimeForInput = dateString => {
 
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
-// Obtener iniciales de un nombre
-const getInitials = name => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0))
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
 };
