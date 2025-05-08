@@ -94,9 +94,7 @@ exports.initWebSocket = server => {
             break;
           case 'SWITCH_CONTACT':
             // Aquí podrías cargar mensajes históricos del contacto
-            console.log(
-              `Cliente ${clientId} cambió al contacto ${userId}`
-            );
+            console.log(`Cliente ${clientId} cambió al contacto ${userId}`);
             break;
           case 'CREATE_GROUP':
             await handleCreateGroup(clientId, userId, data);
@@ -166,7 +164,7 @@ exports.initWebSocket = server => {
 };
 
 // Enviar conversaciones del usuario
-async function sendUserConversations(userId, ws) {
+const sendUserConversations = async (userId, ws) => {
   try {
     const conversations = await Conversation.find({
       participants: userId
@@ -187,10 +185,10 @@ async function sendUserConversations(userId, ws) {
   } catch (error) {
     console.error('Error al cargar conversaciones:', error);
   }
-}
+};
 
 // Notificar a otros usuarios sobre el cambio de estado de un usuario
-function broadcastUserStatus(userId, isOnline) {
+const broadcastUserStatus = (userId, isOnline) => {
   const statusUpdate = {
     type: 'USER_STATUS',
     payload: {
@@ -206,9 +204,9 @@ function broadcastUserStatus(userId, isOnline) {
       ws.send(JSON.stringify(statusUpdate));
     }
   }
-}
+};
 
-async function handleStartConversation(clientId, userId, data) {
+const handleStartConversation = async (clientId, userId, data) => {
   const { recipientId } = data.payload;
 
   if (!userId || !recipientId) return;
@@ -251,10 +249,10 @@ async function handleStartConversation(clientId, userId, data) {
   } catch (error) {
     console.error('Error al iniciar conversación:', error);
   }
-}
+};
 
 // Manejar mensajes de chat
-async function handleChatMessage(clientId, userId, data) {
+const handleChatMessage = async (clientId, userId, data) => {
   if (!userId && data.payload.token) {
     try {
       const decoded = jwt.verify(
@@ -386,10 +384,10 @@ async function handleChatMessage(clientId, userId, data) {
       );
     }
   }
-}
+};
 
 // Manejar creación de grupos
-async function handleCreateGroup(clientId, userId, data) {
+const handleCreateGroup = async (clientId, userId, data) => {
   if (!userId) {
     console.error('Usuario no autenticado intentando crear grupo');
     return;
@@ -449,10 +447,10 @@ async function handleCreateGroup(clientId, userId, data) {
       );
     }
   }
-}
+};
 
 // Manejar marcar mensajes como leídos
-async function handleMarkAsRead(userId, data) {
+const handleMarkAsRead = async (userId, data) => {
   if (!userId) return;
 
   const { conversationId, messageIds } = data.payload;
@@ -463,7 +461,7 @@ async function handleMarkAsRead(userId, data) {
       {
         _id: { $in: messageIds },
         conversation: conversationId,
-        sender: { $ne: userId } // No marcar como leídos los mensajes propios
+        sender: { $ne: userId } 
       },
       { read: true }
     );
@@ -508,7 +506,7 @@ async function handleMarkAsRead(userId, data) {
   } catch (error) {
     console.error('Error al marcar mensajes como leídos:', error);
   }
-}
+};
 
 // Enviar actualización a todos los clientes conectados
 exports.broadcastUpdate = data => {

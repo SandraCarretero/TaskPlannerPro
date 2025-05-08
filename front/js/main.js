@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Obtener información del usuario actual
-async function getCurrentUser() {
+const getCurrentUser = async () => {
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
       headers: {
@@ -106,10 +106,10 @@ async function getCurrentUser() {
     console.error('Error al obtener usuario:', error);
     throw error;
   }
-}
+};
 
 // Cargar tareas desde la API
-async function loadTasks() {
+const loadTasks = async () => {
   try {
     const taskUrl =
       currentUser.role === 'admin'
@@ -140,7 +140,7 @@ async function loadTasks() {
   } catch (error) {
     console.error('Error al cargar tareas:', error);
   }
-}
+};
 
 const loadUsers = async () => {
   try {
@@ -159,7 +159,7 @@ const loadUsers = async () => {
   }
 };
 
-function populateUserDropdown(users) {
+const populateUserDropdown = users => {
   const userSelect = document.getElementById('task-user');
   userSelect.innerHTML = '<option value="">Selecciona un usuario</option>';
 
@@ -169,10 +169,10 @@ function populateUserDropdown(users) {
     option.textContent = user.name;
     userSelect.appendChild(option);
   });
-}
+};
 
 // Renderizar tareas en las columnas
-function renderTasks() {
+const renderTasks = () => {
   Object.values(taskColumns).forEach(column => {
     column.innerHTML = '';
   });
@@ -211,7 +211,7 @@ function renderTasks() {
   Object.entries(counts).forEach(([status, count]) => {
     badgeCounts[status].textContent = count;
   });
-}
+};
 
 const createTaskElement = task => {
   console.log(task);
@@ -339,7 +339,7 @@ const createTaskElement = task => {
 };
 
 // Abrir modal para crear nueva tarea
-function openNewTaskModal() {
+const openNewTaskModal = () => {
   // Limpiar formulario
   document.getElementById('task-title').value = '';
   document.getElementById('task-description').value = '';
@@ -368,10 +368,10 @@ function openNewTaskModal() {
   modal.dataset.taskId = '';
 
   loadUsers();
-}
+};
 
 // Abrir modal para editar tarea
-async function openEditTaskModal(task) {
+const openEditTaskModal = async task => {
   const userRole = currentUser.role;
 
   if (userRole === 'admin') {
@@ -441,16 +441,16 @@ async function openEditTaskModal(task) {
 
   // Guardar ID de tarea
   modal.dataset.taskId = task._id;
-}
+};
 
 // Abrir modal para confirmar eliminación
-function openDeleteTaskModal(taskId) {
+const openDeleteTaskModal = taskId => {
   deleteModal.classList.remove('hidden');
   deleteModal.dataset.taskId = taskId;
-}
+};
 
 // Guardar tarea (crear o actualizar)
-async function saveTask() {
+const saveTask = async () => {
   try {
     const taskId = modal.dataset.taskId;
     const userRole = currentUser.role;
@@ -553,10 +553,10 @@ async function saveTask() {
   } catch (error) {
     console.error('Error al guardar tarea:', error);
   }
-}
+};
 
 // Eliminar tarea
-async function deleteTask(taskId) {
+const deleteTask = async taskId => {
   try {
     const response = await fetch(`${API_URL}/tasks/${taskId}`, {
       method: 'DELETE',
@@ -578,10 +578,10 @@ async function deleteTask(taskId) {
   } catch (error) {
     console.error('Error al eliminar tarea:', error);
   }
-}
+};
 
 // Validar formulario de tarea
-function validateTaskForm() {
+const validateTaskForm = () => {
   let isValid = true;
 
   // Validar título
@@ -640,18 +640,10 @@ function validateTaskForm() {
   }
 
   return isValid;
-}
-
-function handleTaskDelete(taskId) {
-  // Eliminar evento del array
-  tasks = tasks.filter(task => task._id !== taskId);
-
-  // Renderizar eventos
-  renderTasks();
-}
+};
 
 // Configurar eventos
-function setupEventListeners() {
+const setupEventListeners = () => {
   // Botón para agregar tarea
   addTaskBtn.addEventListener('click', openNewTaskModal);
 
@@ -726,12 +718,12 @@ function setupEventListeners() {
       priorityOptions.classList.add('hidden');
     }
   });
-}
+};
 
 // Funciones de utilidad
 
 // Obtener días restantes hasta una fecha
-function getDaysLeft(dueDate) {
+const getDaysLeft = dueDate => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -742,25 +734,25 @@ function getDaysLeft(dueDate) {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return diffDays;
-}
+};
 
 // Formatear fecha para input type="date"
-function formatDateForInput(dateString) {
+const formatDateForInput = dateString => {
   const date = new Date(dateString);
   return date.toISOString().split('T')[0];
-}
+};
 
 // Capitalizar primera letra
-function capitalizeFirstLetter(string) {
+const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
-}
+};
 
 // Obtener iniciales de un nombre
-function getInitials(name) {
+const getInitials = name => {
   return name
     .split(' ')
     .map(word => word.charAt(0))
     .join('')
     .toUpperCase()
     .substring(0, 2);
-}
+};

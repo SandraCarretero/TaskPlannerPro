@@ -43,7 +43,7 @@ const ChatModule = (() => {
   const API_URL = 'http://localhost:3000/api';
 
   // Inicializar WebSocket
-  function initWebSocket() {
+  const initWebSocket = () => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.hostname || 'localhost';
     const port = 3000;
@@ -129,10 +129,10 @@ const ChatModule = (() => {
       // Intentar reconectar después de un tiempo
       setTimeout(initWebSocket, 5000);
     }
-  }
+  };
 
   // Manejar mensajes entrantes
-  function handleIncomingMessage(data) {
+  const handleIncomingMessage = data => {
     switch (data.type) {
       case 'CONNECTED':
         console.log(data.payload.message);
@@ -271,10 +271,10 @@ const ChatModule = (() => {
       default:
         console.log(`Tipo de mensaje no manejado: ${data.type}`);
     }
-  }
+  };
 
   // Actualizar estado de escritura
-  function updateTypingStatus(data) {
+  const updateTypingStatus = data => {
     const { userId, conversationId, isTyping } = data;
 
     if (conversationId !== currentConversationId) return;
@@ -297,10 +297,10 @@ const ChatModule = (() => {
     } else {
       typingIndicator.style.display = 'none';
     }
-  }
+  };
 
   // Obtener información del usuario actual
-  async function fetchCurrentUser() {
+  const fetchCurrentUser = async () => {
     try {
       const response = await fetch(`${API_URL}/auth/me`, {
         headers: {
@@ -317,10 +317,10 @@ const ChatModule = (() => {
       console.error('Error al obtener usuario:', error);
       throw error;
     }
-  }
+  };
 
   // Configurar pestañas
-  function setupTabs() {
+  const setupTabs = () => {
     const tabs = document.querySelectorAll('.chat-tab');
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -339,10 +339,10 @@ const ChatModule = (() => {
         document.getElementById(`${tabName}-tab`).classList.add('active');
       });
     });
-  }
+  };
 
   // Configurar eventos de la interfaz
-  function setupEventListeners() {
+  const setupEventListeners = () => {
     const sendButton = document.getElementById('send-message');
     const messageInput = document.getElementById('message-input');
 
@@ -442,10 +442,10 @@ const ChatModule = (() => {
         });
       });
     }
-  }
+  };
 
   // Iniciar o abrir una conversación con un usuario
-  function startOrOpenConversation(userId) {
+  const startOrOpenConversation = userId => {
     if (userId === currentUser._id) {
       console.error('No puedes iniciar una conversación contigo mismo');
       alert('No puedes iniciar una conversación contigo mismo');
@@ -488,10 +488,10 @@ const ChatModule = (() => {
         pendingActions.push(() => startOrOpenConversation(userId));
       }
     }
-  }
+  };
 
   // Renderizar lista de conversaciones
-  function renderConversations(conversations) {
+  const renderConversations = conversations => {
     const conversationsContainer = document.getElementById(
       'conversations-container'
     );
@@ -581,10 +581,10 @@ const ChatModule = (() => {
 
       conversationsContainer.appendChild(contactElement);
     });
-  }
+  };
 
   // Seleccionar una conversación
-  function selectConversation(conversationId) {
+  const selectConversation = conversationId => {
     currentConversationId = conversationId;
 
     document.querySelectorAll('.chat-contact').forEach(contact => {
@@ -612,10 +612,10 @@ const ChatModule = (() => {
         );
       }
     }
-  }
+  };
 
   // Enviar mensaje
-  function sendMessage(text) {
+  const sendMessage = text => {
     if (!currentConversationId) {
       console.error('No hay conversación seleccionada');
       return;
@@ -648,10 +648,10 @@ const ChatModule = (() => {
     if (messageInput) {
       messageInput.value = '';
     }
-  }
+  };
 
   // Otras funciones necesarias...
-  function updateChatHeader(conversationId) {
+  const updateChatHeader = conversationId => {
     const conversation = conversations.find(c => c._id === conversationId);
     if (!conversation) return;
 
@@ -684,9 +684,9 @@ const ChatModule = (() => {
         </div>
       `;
     }
-  }
+  };
 
-  function fetchMessages(conversationId) {
+  const fetchMessages = conversationId => {
     // Limpiar mensajes anteriores
     const messagesContainer = document.getElementById('chat-messages');
     if (messagesContainer) {
@@ -760,16 +760,16 @@ const ChatModule = (() => {
             '<div class="error-messages">Error al cargar mensajes. Intenta de nuevo.</div>';
         }
       });
-  }
+  };
 
-  function formatTime(date) {
+  const formatTime = date => {
     return new Intl.DateTimeFormat('es', {
       hour: '2-digit',
       minute: '2-digit'
     }).format(date);
-  }
+  };
 
-  function updateConversationWithNewMessage(conversationId, message) {
+  const updateConversationWithNewMessage = (conversationId, message) => {
     const conversation = conversations.find(c => c._id === conversationId);
     if (!conversation) return;
 
@@ -787,9 +787,9 @@ const ChatModule = (() => {
 
     // Volver a renderizar
     renderConversations(conversations);
-  }
+  };
 
-  function displayMessage(message) {
+  const displayMessage = message => {
     const messagesContainer = document.getElementById('chat-messages');
     if (!messagesContainer) return;
 
@@ -804,22 +804,16 @@ const ChatModule = (() => {
         <div class="message-text">${message.text}</div>
         <div class="message-meta">
           <span class="message-time">${formattedTime}</span>
-          ${
-            message.sender === 'sent'
-              ? `<span class="message-status">${
-                  message.read ? '✓✓' : '✓'
-                }</span>`
-              : ''
-          }
+          
         </div>
       </div>
-    `;
+      `;
 
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
+  };
 
-  function markMessagesAsRead(conversationId, messages) {
+  const markMessagesAsRead = (conversationId, messages) => {
     if (!messages || messages.length === 0) return;
 
     const messageIds = messages.map(m => m._id || m.id);
@@ -850,9 +844,9 @@ const ChatModule = (() => {
         if (unreadDot) unreadDot.remove();
       }
     }
-  }
+  };
 
-  function updateUserStatus(data) {
+  const updateUserStatus = data => {
     const { userId, isOnline } = data;
 
     // Actualizar estado en conversaciones
@@ -889,9 +883,9 @@ const ChatModule = (() => {
     if (currentConversationId) {
       updateChatHeader(currentConversationId);
     }
-  }
+  };
 
-  function updateMessagesReadStatus(data) {
+  const updateMessagesReadStatus = data => {
     const { conversationId, messageIds } = data;
 
     // Actualizar UI para mostrar mensajes como leídos
@@ -924,10 +918,10 @@ const ChatModule = (() => {
         }
       }
     }
-  }
+  };
 
   // Inicializar el módulo
-  function init() {
+  const init = () => {
     console.log('Inicializando módulo de chat...');
 
     if (!authToken) {
@@ -964,9 +958,9 @@ const ChatModule = (() => {
           localStorage.removeItem('token');
         }
       });
-  }
+  };
 
-  function loadUsers() {
+  const loadUsers = () => {
     fetch(`${API_URL}/chat/users`, {
       headers: {
         Authorization: `Bearer ${authToken}`
@@ -1043,7 +1037,7 @@ const ChatModule = (() => {
       .catch(error => {
         console.error('Error al cargar usuarios:', error);
       });
-  }
+  };
 
   // Manejar cierre de la página
   window.addEventListener('beforeunload', () => {
@@ -1069,7 +1063,7 @@ const ChatModule = (() => {
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', ChatModule.init);
 
-async function getCurrentUser() {
+const getCurrentUser = async () => {
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
       headers: {
@@ -1096,13 +1090,13 @@ async function getCurrentUser() {
     console.error('Error al obtener usuario:', error);
     throw error;
   }
-}
+};
 
-function getInitials(name) {
+const getInitials = name => {
   return name
     .split(' ')
     .map(word => word.charAt(0))
     .join('')
     .toUpperCase()
     .substring(0, 2);
-}
+};

@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Obtener información del usuario actual
-async function getCurrentUser() {
+const getCurrentUser = async () => {
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
       headers: {
@@ -107,10 +107,10 @@ async function getCurrentUser() {
     console.error('Error al obtener usuario:', error);
     throw error;
   }
-}
+};
 
 // Cargar estadísticas del usuario
-async function loadStats() {
+const loadStats = async () => {
   try {
     // Cargar estadísticas de tareas
     const tasksResponse = await fetch(`${API_URL}/tasks`, {
@@ -160,10 +160,10 @@ async function loadStats() {
   } catch (error) {
     console.error('Error al cargar estadísticas:', error);
   }
-}
+};
 
 // Configurar eventos
-function setupEventListeners() {
+const setupEventListeners = () => {
   // Botón para editar perfil
   editProfileBtn.addEventListener('click', openEditProfileModal);
 
@@ -276,10 +276,10 @@ function setupEventListeners() {
       deleteAccountModal.classList.add('hidden');
     }
   });
-}
+};
 
 // Abrir modal para editar perfil
-function openEditProfileModal() {
+const openEditProfileModal = () => {
   // Llenar formulario con datos actuales
   document.getElementById('edit-name').value = currentUser.name;
 
@@ -288,10 +288,10 @@ function openEditProfileModal() {
 
   // Mostrar modal
   editProfileModal.classList.remove('hidden');
-}
+};
 
 // Abrir modal para cambiar contraseña
-function openChangePasswordModal() {
+const openChangePasswordModal = () => {
   // Limpiar formulario
   changePasswordForm.reset();
 
@@ -302,10 +302,10 @@ function openChangePasswordModal() {
 
   // Mostrar modal
   changePasswordModal.classList.remove('hidden');
-}
+};
 
 // Abrir modal para cambiar avatar
-function openChangeAvatarModal() {
+const openChangeAvatarModal = () => {
   // Limpiar formulario
   changeAvatarForm.reset();
 
@@ -318,14 +318,14 @@ function openChangeAvatarModal() {
 
   // Mostrar modal
   changeAvatarModal.classList.remove('hidden');
-}
+};
 
 const openDeleteAccountModal = () => {
   deleteAccountModal.classList.remove('hidden');
 };
 
 // Actualizar perfil
-async function updateProfile(e) {
+const updateProfile = async e => {
   e.preventDefault();
 
   try {
@@ -372,10 +372,10 @@ async function updateProfile(e) {
     document.getElementById('error-name').textContent =
       'Error al actualizar perfil';
   }
-}
+};
 
 // Cambiar contraseña
-async function changePassword(e) {
+const changePassword = async e => {
   e.preventDefault();
 
   try {
@@ -440,10 +440,10 @@ async function changePassword(e) {
         'Error al cambiar contraseña';
     }
   }
-}
+};
 
 // Previsualizar avatar
-function previewAvatar(e) {
+const previewAvatar = e => {
   const file = e.target.files[0];
 
   if (!file) {
@@ -475,10 +475,10 @@ function previewAvatar(e) {
     preview.textContent = '';
   };
   reader.readAsDataURL(file);
-}
+};
 
 // Cambiar avatar
-async function changeAvatar(e) {
+const changeAvatar = async e => {
   e.preventDefault();
 
   try {
@@ -538,16 +538,16 @@ async function changeAvatar(e) {
     document.getElementById('error-avatar-file').textContent =
       'Error al cambiar avatar';
   }
-}
+};
 
 // Cerrar sesión
-function logout() {
+const logout = () => {
   // Eliminar token del localStorage
   localStorage.removeItem('token');
 
   // Redirigir a la página de login
   window.location.href = 'login.html';
-}
+};
 
 const deleteAccount = async () => {
   try {
@@ -572,11 +572,11 @@ const deleteAccount = async () => {
 };
 
 // Obtener iniciales de un nombre
-function getInitials(name) {
+const getInitials = name => {
   return name
     .split(' ')
     .map(word => word.charAt(0))
     .join('')
     .toUpperCase()
     .substring(0, 2);
-}
+};

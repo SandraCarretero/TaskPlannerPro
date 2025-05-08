@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Obtener información del usuario actual
-async function getCurrentUser() {
+const getCurrentUser = async () => {
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
       headers: {
@@ -89,10 +89,10 @@ async function getCurrentUser() {
     console.error('Error al obtener usuario:', error);
     throw error;
   }
-}
+};
 
 // Cargar eventos desde la API
-async function loadEvents() {
+const loadEvents = async () => {
   try {
     const eventUrl =
       currentUser.role === 'admin'
@@ -117,7 +117,7 @@ async function loadEvents() {
   } catch (error) {
     console.error('Error al cargar eventos:', error);
   }
-}
+};
 
 const loadUsers = async (role = 'all') => {
   try {
@@ -142,7 +142,7 @@ const loadUsers = async (role = 'all') => {
   }
 };
 
-function populateUserDropdown() {
+const populateUserDropdown = () => {
   const userSelect = document.getElementById('event-user');
   userSelect.innerHTML = ''; // Limpiar opciones
 
@@ -165,10 +165,10 @@ function populateUserDropdown() {
   adminOption.value = 'admin';
   adminOption.textContent = 'Administradores';
   userSelect.appendChild(adminOption);
-}
+};
 
 // Renderizar eventos
-function renderEvents() {
+const renderEvents = () => {
   // Limpiar contenedor
   eventsContainer.innerHTML = '';
 
@@ -219,7 +219,7 @@ function renderEvents() {
     monthSection.appendChild(eventsList);
     eventsContainer.appendChild(monthSection);
   });
-}
+};
 
 // Crear elemento HTML para un evento
 const createEventElement = event => {
@@ -322,7 +322,7 @@ const createEventElement = event => {
 };
 
 // Abrir modal para crear nuevo evento
-async function openNewEventModal() {
+const openNewEventModal = async () => {
   await loadUsers();
 
   // Limpiar formulario
@@ -346,10 +346,10 @@ async function openNewEventModal() {
 
   // Guardar ID de evento (null para nuevo evento)
   modal.dataset.eventId = '';
-}
+};
 
 // Abrir modal para editar evento
-async function openEditEventModal(event) {
+const openEditEventModal = async event => {
   await loadUsers();
 
   // Llenar formulario con datos del evento
@@ -378,17 +378,16 @@ async function openEditEventModal(event) {
 
   // Guardar ID de evento
   modal.dataset.eventId = event._id;
-
-}
+};
 
 // Abrir modal para confirmar eliminación
-function openDeleteEventModal(eventId) {
+const openDeleteEventModal = eventId => {
   deleteModal.classList.remove('hidden');
   deleteModal.dataset.eventId = eventId;
-}
+};
 
 // Guardar evento (crear o actualizar)
-async function saveEvent() {
+const saveEvent = async () => {
   try {
     // Validar formulario
     if (!validateEventForm()) {
@@ -451,10 +450,10 @@ async function saveEvent() {
   } catch (error) {
     console.error('Error al guardar evento:', error);
   }
-}
+};
 
 // Eliminar evento
-async function deleteEvent(eventId) {
+const deleteEvent = async eventId => {
   try {
     const response = await fetch(`${API_URL}/events/${eventId}`, {
       method: 'DELETE',
@@ -476,10 +475,10 @@ async function deleteEvent(eventId) {
   } catch (error) {
     console.error('Error al eliminar evento:', error);
   }
-}
+};
 
 // Validar formulario de evento
-function validateEventForm() {
+const validateEventForm = () => {
   let isValid = true;
 
   // Validar título
@@ -531,17 +530,9 @@ function validateEventForm() {
   }
 
   return isValid;
-}
+};
 
-function handleEventDelete(eventId) {
-  // Eliminar evento del array
-  events = events.filter(event => event._id !== eventId);
-
-  // Renderizar eventos
-  renderEvents();
-}
-
-function filterEvents() {
+const filterEvents = () => {
   let filteredEvents = [...events]; // Crear una copia del array original
   const selectedRole =
     document
@@ -555,10 +546,10 @@ function filterEvents() {
 
   // Renderizar eventos filtrados
   renderFilteredEvents(filteredEvents);
-}
+};
 
 // Función para renderizar eventos filtrados
-function renderFilteredEvents(filteredEvents) {
+const renderFilteredEvents = filteredEvents => {
   // Limpiar contenedor
   eventsContainer.innerHTML = '';
 
@@ -609,10 +600,10 @@ function renderFilteredEvents(filteredEvents) {
     monthSection.appendChild(eventsList);
     eventsContainer.appendChild(monthSection);
   });
-}
+};
 
 // Configurar eventos
-function setupEventListeners() {
+const setupEventListeners = () => {
   // Botón para agregar evento
   addEventBtn.addEventListener('click', openNewEventModal);
 
@@ -675,26 +666,26 @@ function setupEventListeners() {
   document
     .querySelector('#role-options li[data-role="all"]')
     .classList.add('active');
-}
+};
 
 // Funciones de utilidad
 
 // Formatear fecha y hora para input type="datetime-local"
-function formatDateTimeForInput(dateString) {
+const formatDateTimeForInput = dateString => {
   const date = new Date(dateString);
   return date.toISOString().slice(0, 16);
-}
+};
 
-function capitalizeFirstLetter(string) {
+const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
-}
+};
 
 // Obtener iniciales de un nombre
-function getInitials(name) {
+const getInitials = name => {
   return name
     .split(' ')
     .map(word => word.charAt(0))
     .join('')
     .toUpperCase()
     .substring(0, 2);
-}
+};
