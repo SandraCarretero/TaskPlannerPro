@@ -57,7 +57,7 @@ const ChatModule = (() => {
       socket = new WebSocket(wsUrl);
 
       socket.addEventListener('open', event => {
-        console.log('✅ Conectado al servidor WebSocket');
+        console.log('Conectado al servidor WebSocket');
         isConnected = true;
 
         socket.send(
@@ -72,7 +72,6 @@ const ChatModule = (() => {
 
         // Enviar mensajes en cola
         if (messageQueue.length > 0) {
-          console.log(`Enviando ${messageQueue.length} mensajes en cola`);
           const messagesToSend = [...messageQueue];
           messageQueue = [];
           messagesToSend.forEach(message => {
@@ -82,9 +81,6 @@ const ChatModule = (() => {
 
         // Ejecutar acciones pendientes
         if (pendingActions.length > 0) {
-          console.log(
-            `Ejecutando ${pendingActions.length} acciones pendientes`
-          );
           const actionsToExecute = [...pendingActions];
           pendingActions = [];
           actionsToExecute.forEach(action => {
@@ -100,7 +96,6 @@ const ChatModule = (() => {
       socket.addEventListener('message', event => {
         try {
           const data = JSON.parse(event.data);
-          console.log('Mensaje recibido:', data);
           handleIncomingMessage(data);
         } catch (error) {
           console.error('Error al procesar mensaje:', error);
@@ -113,8 +108,6 @@ const ChatModule = (() => {
         );
         isConnected = false;
 
-        // Intentar reconectar después de un tiempo
-        console.log('Intentando reconectar en 5 segundos...');
         setTimeout(initWebSocket, 5000);
       });
 
@@ -460,7 +453,6 @@ const ChatModule = (() => {
       selectConversation(existingConversation._id);
     } else {
       if (isConnected && socket && socket.readyState === WebSocket.OPEN) {
-        console.log(`Iniciando nueva conversación con usuario ${userId}`);
         socket.send(
           JSON.stringify({
             type: 'START_CONVERSATION',
@@ -634,7 +626,6 @@ const ChatModule = (() => {
     if (isConnected && socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify(message));
     } else {
-      console.log('Guardando mensaje en cola para enviar cuando se conecte');
       messageQueue.push(message);
 
       // Intentar reconectar
@@ -707,8 +698,6 @@ const ChatModule = (() => {
       }
       return;
     }
-
-    console.log(`Solicitando mensajes para la conversación: ${conversationId}`);
 
     // Solicitar mensajes al servidor
 
@@ -922,7 +911,6 @@ const ChatModule = (() => {
 
   // Inicializar el módulo
   const init = () => {
-    console.log('Inicializando módulo de chat...');
 
     if (!authToken) {
       console.error('No hay token de autenticación');
@@ -937,7 +925,6 @@ const ChatModule = (() => {
         }
 
         currentUser = userData.data.user;
-        console.log('Usuario actual:', currentUser);
 
         // Configurar pestañas
         setupTabs();
@@ -978,7 +965,6 @@ const ChatModule = (() => {
         return response.json();
       })
       .then(users => {
-        console.log('Usuarios cargados:', users);
 
         if (!Array.isArray(users)) {
           console.error('La respuesta no es un array:', users);

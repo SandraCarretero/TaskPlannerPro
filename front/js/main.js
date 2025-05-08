@@ -95,7 +95,6 @@ const loadTasks = async () => {
       currentUser.role === 'admin'
         ? `${API_URL}/tasks/admin/all`
         : `${API_URL}/tasks`;
-    console.log(currentUser.role);
 
     const response = await fetch(taskUrl, {
       headers: {
@@ -194,7 +193,6 @@ const renderTasks = () => {
 };
 
 const createTaskElement = task => {
-  console.log(task);
   const userRole = currentUser.role;
 
   const taskCard = document.createElement('div');
@@ -300,7 +298,6 @@ const createTaskElement = task => {
     taskActions.appendChild(deleteButton);
 
     const user = task.users[0];
-    console.log(user);
     const avatarImg = document.createElement('div');
     avatarImg.classList.add('avatar');
     avatarImg.classList.add('avatar-task');
@@ -364,7 +361,6 @@ const openEditTaskModal = async task => {
   document.getElementById('task-date').value = formatDateForInput(task.dueDate);
   document.getElementById('task-user').value = task.users[0]._id;
   document.getElementById('task-status').value = task.status;
-  console.log(task.status);
   document.getElementById('task-priority').value = task.priority;
 
   // Seleccionar etiquetas

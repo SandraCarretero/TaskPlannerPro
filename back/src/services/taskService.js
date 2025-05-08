@@ -17,8 +17,7 @@ exports.getUserTaskById = async (taskId, userId) => {
 exports.createTask = async taskData => {
   try {
     const task = new Task(taskData);
-    await task.save();
-    console.log('Tarea guardada:', task); // Verifica si la tarea se guarda correctamente
+    await task.save(); // Verifica si la tarea se guarda correctamente
     return task;
   } catch (error) {
     console.error('Error al guardar tarea:', error); // Muestra el error si ocurre

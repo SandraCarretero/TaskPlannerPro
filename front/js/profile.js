@@ -80,18 +80,14 @@ const getCurrentUser = async () => {
 
     // Mostrar avatar si existe
     if (currentUser.avatar) {
-      console.log('Avatar del usuario:', currentUser.avatar);
       // Verificar si la ruta del avatar es una URL completa o una ruta relativa
       const avatarUrl = currentUser.avatar.startsWith('http')
         ? currentUser.avatar
         : `${API_URL}${currentUser.avatar}`;
 
-      console.log('Intentando cargar avatar desde:', avatarUrl);
-
       // Intentar cargar la imagen, si falla, intentar con una ruta alternativa
       const img = new Image();
       img.onload = () => {
-        console.log('Avatar cargado correctamente');
         profileAvatar.style.backgroundImage = `url(${avatarUrl})`;
         profileAvatar.textContent = '';
       };
@@ -572,11 +568,11 @@ const deleteAccount = async () => {
 };
 
 // Obtener iniciales de un nombre
-const getInitials = name => {
+const getInitials = (name) => {
   return name
     .split(' ')
     .map(word => word.charAt(0))
     .join('')
     .toUpperCase()
     .substring(0, 2);
-};
+}

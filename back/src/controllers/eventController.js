@@ -51,8 +51,6 @@ exports.updateEvent = async (req, res, next) => {
       req.params.id,
       updates
     );
-    console.log('ID de tarea a actualizar:', req.params.id);
-    console.log('Datos a actualizar:', req.body);
     if (!event) throw new AppError('Evento no encontrado', 404);
     res.status(200).json({ status: 'success', data: { event } });
   } catch (error) {

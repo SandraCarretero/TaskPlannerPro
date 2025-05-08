@@ -82,7 +82,6 @@ exports.initWebSocket = server => {
     ws.on('message', async message => {
       try {
         const data = JSON.parse(message);
-        console.log('Mensaje recibido:', data);
 
         // Manejar diferentes tipos de mensajes
         switch (data.type) {
@@ -93,7 +92,6 @@ exports.initWebSocket = server => {
             await handleChatMessage(clientId, userId, data);
             break;
           case 'SWITCH_CONTACT':
-            // Aquí podrías cargar mensajes históricos del contacto
             console.log(`Cliente ${clientId} cambió al contacto ${userId}`);
             break;
           case 'CREATE_GROUP':

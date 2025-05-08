@@ -42,8 +42,7 @@ exports.updateTask = async (req, res, next) => {
       req.params.id,
       updates
     );
-    console.log('ID de tarea a actualizar:', req.params.id);
-    console.log('Datos a actualizar:', req.body);
+
     if (!task) throw new AppError('Tarea no encontrada', 404);
     res.status(200).json({ status: 'success', data: { task } });
   } catch (error) {

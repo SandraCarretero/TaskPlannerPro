@@ -279,7 +279,6 @@ const sendRegistrationConfirmation = async (userData) => {
 
   try {
     const info = await transporter.sendMail(mailOptions)
-    console.log("Email de confirmación enviado: " + info.response)
     return { success: true, message: "Correo de confirmación enviado exitosamente." }
   } catch (error) {
     console.error("Error al enviar el email de confirmación:", error)

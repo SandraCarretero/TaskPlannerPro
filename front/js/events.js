@@ -73,7 +73,6 @@ const loadEvents = async () => {
       currentUser.role === 'admin'
         ? `${API_URL}/events/admin/all`
         : `${API_URL}/events`;
-    console.log(currentUser.role);
     const response = await fetch(eventUrl, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -337,7 +336,6 @@ const openEditEventModal = async event => {
     event.endDate
   );
   document.getElementById('event-user').value = event.targetGroup;
-  console.log(event.targetGroup);
   document.getElementById('event-location').value = event.location || '';
 
   // Limpiar mensajes de error
@@ -391,7 +389,6 @@ const saveEvent = async () => {
     let response;
 
     if (eventId) {
-      console.log(eventId);
       // Actualizar evento existente
       response = await fetch(`${API_URL}/events/${eventId}`, {
         method: 'PATCH',
