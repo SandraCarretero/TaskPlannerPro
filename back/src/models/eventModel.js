@@ -28,6 +28,11 @@ const eventSchema = new mongoose.Schema({
       ref: 'User'
     }
   ],
+  targetGroup: {
+    type: String,
+    enum: ['user', 'admin', 'all'],
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

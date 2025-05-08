@@ -371,15 +371,20 @@ function openNewTaskModal() {
 }
 
 // Abrir modal para editar tarea
-function openEditTaskModal(task) {
+async function openEditTaskModal(task) {
   const userRole = currentUser.role;
+
+  if (userRole === 'admin') {
+    await loadUsers();
+  }
 
   // Llenar formulario con datos de la tarea
   document.getElementById('task-title').value = task.title;
   document.getElementById('task-description').value = task.description || '';
   document.getElementById('task-date').value = formatDateForInput(task.dueDate);
-  document.getElementById('task-user').value = task.users[0].id;
+  document.getElementById('task-user').value = task.users[0]._id;
   document.getElementById('task-status').value = task.status;
+  console.log(task.status);
   document.getElementById('task-priority').value = task.priority;
 
   // Seleccionar etiquetas
@@ -423,6 +428,12 @@ function openEditTaskModal(task) {
   const statusField = document.getElementById('form-group-status');
   if (statusField) {
     statusField.style.display = 'block';
+
+    if (userRole === 'user') {
+      statusField.style.width = '100%';
+    } else {
+      statusField.style.width = '';
+    }
   }
 
   // Mostrar modal
@@ -430,10 +441,6 @@ function openEditTaskModal(task) {
 
   // Guardar ID de tarea
   modal.dataset.taskId = task._id;
-
-  if (userRole === 'admin') {
-    loadUsers();
-  }
 }
 
 // Abrir modal para confirmar eliminación

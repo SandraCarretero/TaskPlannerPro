@@ -1,4 +1,5 @@
 const Event = require('../models/eventModel');
+const User = require('../models/userModel');
 const { AppError } = require('../utils/errorUtil');
 
 exports.getUserEvents = async userId => {
@@ -12,26 +13,75 @@ exports.getEventById = async (eventId, userId) => {
 };
 
 exports.createEvent = async eventData => {
-try {
-    const event = new Event(eventData);
+  try {
+    let query = {};
+    if (eventData.targetGroup === 'user') {
+      query = { role: 'user' };
+    } else if (eventData.targetGroup === 'admin') {
+      query = { role: 'admin' };
+    }
+
+    const users = await User.find(query, '_id');
+
+    if (!users.length) {
+      throw new AppError(
+        'No se encontraron usuarios para el grupo especificado',
+        404
+      );
+    }
+
+    const userIds = users.map(u => u._id);
+
+    const event = new Event({
+      ...eventData,
+      users: userIds
+    });
+
     await event.save();
-    console.log('Evento guardado:', event); // Verifica si la tarea se guarda correctamente
     return event;
   } catch (error) {
-    console.error('Error al guardar evento:', error); // Muestra el error si ocurre
+    console.error('Error al guardar evento:', error);
     throw error;
   }
-}
+};
 
 exports.updateEvent = async (eventId, updates) => {
-  const event = await Event.findOneAndUpdate(
-    { _id: eventId },
-    { ...updates, updatedAt: Date.now() },
-    { new: true, runValidators: true }
-  );
-  if (!event) throw new AppError('Evento no encontrado', 404);
-  return event;
-}
+  try {
+    let newUsers = [];
+    if (updates.targetGroup) {
+      let query = {};
+      if (updates.targetGroup === 'user') {
+        query = { role: 'user' };
+      } else if (updates.targetGroup === 'admin') {
+        query = { role: 'admin' };
+      }
+      const users = await User.find(query, '_id');
+      if (!users.length) {
+        throw new AppError(
+          'No se encontraron usuarios para el grupo especificado',
+          404
+        );
+      }
+      newUsers = users.map(u => u._id);
+    }
+
+    const event = await Event.findOneAndUpdate(
+      { _id: eventId },
+      {
+        ...updates,
+        ...(updates.targetGroup ? { users: newUsers } : {}),
+        updatedAt: Date.now()
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!event) throw new AppError('Evento no encontrado', 404);
+    return event;
+  } catch (error) {
+    console.error('Error al actualizar evento:', error);
+    throw error;
+  }
+};
 
 exports.deleteEvent = async (eventId, userId) => {
   const event = await Event.findOneAndDelete({ _id: eventId });

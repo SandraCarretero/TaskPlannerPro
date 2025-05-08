@@ -95,7 +95,7 @@ exports.initWebSocket = server => {
           case 'SWITCH_CONTACT':
             // Aquí podrías cargar mensajes históricos del contacto
             console.log(
-              `Cliente ${clientId} cambió al contacto ${data.payload.contactId}`
+              `Cliente ${clientId} cambió al contacto ${userId}`
             );
             break;
           case 'CREATE_GROUP':

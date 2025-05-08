@@ -441,15 +441,25 @@ body {
   align-items: center;
 }
 
-.priority-dot {
+.priority-dot,
+.role-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   margin-right: 5px;
 }
 
-.priority-todas .priority-dot {
+.priority-todas .priority-dot,
+.role-todas .role-dot {
   border: 1px solid var(--color-primary);
+}
+
+.role-users .role-dot {
+  background-color: var(--color-primary-hover);
+}
+
+.role-admins .role-dot {
+  background-color: var(--color-primary);
 }
 
 .priority-alta .priority-dot {
@@ -607,8 +617,9 @@ body {
 }
 
 .avatar-task {
-  width: 35px;
+  width: 28px;
   aspect-ratio: 1;
+  font-size: 0.7rem;
 }
 
 .profile-icon {
@@ -851,7 +862,8 @@ textarea.form-control {
   margin-top: 4px;
 }
 
-.priority-options {
+.priority-options,
+.role-options {
   list-style: none;
   padding: 0;
   margin-top: 5px;
@@ -861,14 +873,16 @@ textarea.form-control {
   background-color: white;
   position: absolute;
   z-index: 100;
-  width: 98px;
+  min-width: 98px;
+  width: max-content;
 }
 
 .priority-options-menu {
   bottom: 76px;
 }
 
-.priority-options li {
+.priority-options li,
+.role-options li {
   padding: 8px 12px;
   cursor: pointer;
   display: flex;

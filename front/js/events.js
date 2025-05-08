@@ -17,8 +17,8 @@ const saveBtn = document.getElementById('save-button');
 const confirmDeleteBtn = document.getElementById('confirm-delete');
 const cancelDeleteBtn = document.getElementById('cancel-delete');
 const titleElement = document.getElementById('title');
-const finishedFilterBtn = document.getElementById('finished-filter-btn');
-const finishedOptions = document.getElementById('finished-options');
+const roleFilterBtn = document.getElementById('role-filter-btn');
+const roleOptions = document.getElementById('role-options');
 
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', async () => {
@@ -83,6 +83,7 @@ async function getCurrentUser() {
 
     if (currentUser.role === 'admin') {
       addEventBtn.style.display = 'flex';
+      roleFilterBtn.style.display = 'flex';
     }
   } catch (error) {
     console.error('Error al obtener usuario:', error);
@@ -112,13 +113,13 @@ async function loadEvents() {
     events = data.data.events;
 
     // Renderizar eventos
-    renderEvents();
+    filterEvents();
   } catch (error) {
     console.error('Error al cargar eventos:', error);
   }
 }
 
-const loadUsers = async () => {
+const loadUsers = async (role = 'all') => {
   try {
     const response = await fetch(`${API_URL}/users`, {
       headers: {
@@ -129,22 +130,41 @@ const loadUsers = async () => {
     if (!response.ok) throw new Error('No se pudieron cargar los usuarios');
 
     const data = await response.json();
-    populateUserDropdown(data.data.users);
+    let users = data.data.users;
+
+    if (role !== 'all') {
+      users = users.filter(user => user.role === role);
+    }
+
+    populateUserDropdown(users);
   } catch (error) {
     console.error('Error al cargar usuarios:', error);
   }
 };
 
-function populateUserDropdown(users) {
+function populateUserDropdown() {
   const userSelect = document.getElementById('event-user');
-  userSelect.innerHTML = '<option value="">Selecciona un usuario</option>';
+  userSelect.innerHTML = ''; // Limpiar opciones
 
-  users.forEach(user => {
-    const option = document.createElement('option');
-    option.value = user._id;
-    option.textContent = user.name;
-    userSelect.appendChild(option);
-  });
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Selecciona un grupo';
+  userSelect.appendChild(defaultOption);
+
+  const allOption = document.createElement('option');
+  allOption.value = 'all';
+  allOption.textContent = 'Todos';
+  userSelect.appendChild(allOption);
+
+  const userOption = document.createElement('option');
+  userOption.value = 'user';
+  userOption.textContent = 'Usuarios';
+  userSelect.appendChild(userOption);
+
+  const adminOption = document.createElement('option');
+  adminOption.value = 'admin';
+  adminOption.textContent = 'Administradores';
+  userSelect.appendChild(adminOption);
 }
 
 // Renderizar eventos
@@ -285,7 +305,8 @@ const createEventElement = event => {
   // Descripción del evento
   const eventDescription = document.createElement('p');
   eventDescription.classList.add('event-description');
-  eventDescription.textContent = capitalizeFirstLetter(event.description) || 'Sin descripción';
+  eventDescription.textContent =
+    capitalizeFirstLetter(event.description) || 'Sin descripción';
 
   // Footer (opcional: para añadir etiquetas u otros detalles en el futuro)
   const eventFooter = document.createElement('div');
@@ -301,7 +322,9 @@ const createEventElement = event => {
 };
 
 // Abrir modal para crear nuevo evento
-function openNewEventModal() {
+async function openNewEventModal() {
+  await loadUsers();
+
   // Limpiar formulario
   document.getElementById('event-title').value = '';
   document.getElementById('event-description').value = '';
@@ -323,12 +346,12 @@ function openNewEventModal() {
 
   // Guardar ID de evento (null para nuevo evento)
   modal.dataset.eventId = '';
-
-  loadUsers();
 }
 
 // Abrir modal para editar evento
-function openEditEventModal(event) {
+async function openEditEventModal(event) {
+  await loadUsers();
+
   // Llenar formulario con datos del evento
   document.getElementById('event-title').value = event.title;
   document.getElementById('event-description').value = event.description || '';
@@ -338,7 +361,8 @@ function openEditEventModal(event) {
   document.getElementById('event-end-date').value = formatDateTimeForInput(
     event.endDate
   );
-  document.getElementById('event-user').value = event.users[0].id;
+  document.getElementById('event-user').value = event.targetGroup;
+  console.log(event.targetGroup);
   document.getElementById('event-location').value = event.location || '';
 
   // Limpiar mensajes de error
@@ -355,7 +379,6 @@ function openEditEventModal(event) {
   // Guardar ID de evento
   modal.dataset.eventId = event._id;
 
-  loadUsers();
 }
 
 // Abrir modal para confirmar eliminación
@@ -378,7 +401,7 @@ async function saveEvent() {
     const description = document.getElementById('event-description').value;
     const startDate = document.getElementById('event-start-date').value;
     const endDate = document.getElementById('event-end-date').value;
-    const users = document.getElementById('event-user').value;
+    const targetGroup = document.getElementById('event-user').value;
     const location = document.getElementById('event-location').value;
 
     // Crear objeto con datos del evento
@@ -387,14 +410,14 @@ async function saveEvent() {
       description,
       startDate,
       endDate,
-      users,
+      targetGroup,
       location
     };
 
     let response;
 
     if (eventId) {
-      console.log(eventId)
+      console.log(eventId);
       // Actualizar evento existente
       response = await fetch(`${API_URL}/events/${eventId}`, {
         method: 'PATCH',
@@ -501,7 +524,7 @@ function validateEventForm() {
   const userError = document.getElementById('error-user');
 
   if (!userInput.value) {
-    userError.textContent = 'Asigna un usuario';
+    userError.textContent = 'Asigna un grupo';
     isValid = false;
   } else {
     userError.textContent = '';
@@ -516,6 +539,76 @@ function handleEventDelete(eventId) {
 
   // Renderizar eventos
   renderEvents();
+}
+
+function filterEvents() {
+  let filteredEvents = [...events]; // Crear una copia del array original
+  const selectedRole =
+    document
+      .querySelector('.role-options li.active')
+      ?.getAttribute('data-role') || 'all';
+
+  // Filtrar eventos basados en el rol seleccionado
+  if (selectedRole !== 'all') {
+    filteredEvents = events.filter(event => event.targetGroup === selectedRole);
+  }
+
+  // Renderizar eventos filtrados
+  renderFilteredEvents(filteredEvents);
+}
+
+// Función para renderizar eventos filtrados
+function renderFilteredEvents(filteredEvents) {
+  // Limpiar contenedor
+  eventsContainer.innerHTML = '';
+
+  if (filteredEvents.length === 0) {
+    eventsContainer.innerHTML =
+      '<p class="no-events">No hay eventos para este filtro</p>';
+    return;
+  }
+
+  // Ordenar eventos por fecha
+  filteredEvents.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+  // Agrupar eventos por mes
+  const eventsByMonth = {};
+
+  filteredEvents.forEach(event => {
+    const date = new Date(event.startDate);
+    const monthYear = `${date.getMonth()}-${date.getFullYear()}`;
+
+    if (!eventsByMonth[monthYear]) {
+      eventsByMonth[monthYear] = [];
+    }
+
+    eventsByMonth[monthYear].push(event);
+  });
+
+  // Renderizar eventos por mes
+  Object.entries(eventsByMonth).forEach(([monthYear, monthEvents]) => {
+    const [month, year] = monthYear.split('-');
+    const monthName = new Date(
+      Number.parseInt(year),
+      Number.parseInt(month),
+      1
+    ).toLocaleString('es', { month: 'long' });
+
+    const monthSection = document.createElement('div');
+    monthSection.className = 'events-month';
+    monthSection.innerHTML = `<h2>${monthName} ${year}</h2>`;
+
+    const eventsList = document.createElement('div');
+    eventsList.className = 'events-list';
+
+    monthEvents.forEach(event => {
+      const eventElement = createEventElement(event);
+      eventsList.appendChild(eventElement);
+    });
+
+    monthSection.appendChild(eventsList);
+    eventsContainer.appendChild(monthSection);
+  });
 }
 
 // Configurar eventos
@@ -547,10 +640,41 @@ function setupEventListeners() {
     }
   });
 
-  // Filtrar eventos
-  finishedFilterBtn.addEventListener('click', () => {
-    finishedOptions.classList.toggle('hidden');
+  document.addEventListener('click', e => {
+    if (
+      !e.target.closest('#role-filter-btn') &&
+      !e.target.closest('#role-options')
+    ) {
+      roleOptions.classList.add('hidden');
+    }
   });
+
+  // Filtrar eventos
+  roleFilterBtn.addEventListener('click', () => {
+    roleOptions.classList.toggle('hidden');
+  });
+
+  document.querySelectorAll('#role-options li').forEach(option => {
+    option.addEventListener('click', function () {
+      // Remover la clase active de todas las opciones
+      document
+        .querySelectorAll('#role-options li')
+        .forEach(opt => opt.classList.remove('active'));
+
+      // Agregar la clase active a la opción seleccionada
+      this.classList.add('active');
+
+      // Ocultar el menú de opciones
+      roleOptions.classList.add('hidden');
+
+      // Filtrar los eventos según la selección
+      filterEvents();
+    });
+  });
+
+  document
+    .querySelector('#role-options li[data-role="all"]')
+    .classList.add('active');
 }
 
 // Funciones de utilidad

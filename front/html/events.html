@@ -72,21 +72,21 @@
             <img src="../img/icon.svg" alt="" class="logo-img" />
             <span>Flowtask</span>
           </div>
-          <h1 id="title" class="title">Eventos de Nombre</h1>
+          <h1 id="title" class="title"></h1>
           <div class="buttons-container">
-            <div class="finished-filter">
-              <button class="button" id="finished-filter-btn">
+            <div class="role-filter">
+              <button class="button hidden" id="role-filter-btn">
                 <i class="fa-solid fa-filter"></i> Filtrar
               </button>
-              <ul id="finished-options" class="finished-options hidden">
-                <li data-finished="all" class="finished-todas">
-                  <span class="finished-dot finished-todos"></span>Todos
+              <ul id="role-options" class="role-options hidden">
+                <li data-role="all" class="role-todas">
+                  <span class="role-dot role-todos"></span>Todos
                 </li>
-                <li data-finished="noFinished" class="finished-noFinished">
-                  <span class="finished-dot finished-noFinished"></span>Pendientes
+                <li data-role="user" class="role-users">
+                  <span class="role-dot role-users"></span>Usuarios
                 </li>
-                <li data-finished="finished" class="finished-finished">
-                  <span class="finished-dot finished-finished"></span>Finalizados
+                <li data-role="admin" class="role-admins">
+                  <span class="role-dot role-admins"></span>Administradores
                 </li>
               </ul>
             </div>
@@ -147,11 +147,10 @@
         <div class="form-group">
           <label for="event-user">Asignar a</label>
           <select id="event-user" class="form-control">
-            <option value="">Seleccione un usuario</option>
-            <!-- Estos valores pueden generarse dinámicamente con JS -->
-            <option value="usuario1">usuario1@email.com</option>
-            <option value="usuario2">usuario2@email.com</option>
-            <option value="usuario3">usuario3@email.com</option>
+            <option value="">Seleccione un grupo</option>
+            <option value="all">Todos</option>
+            <option value="user">Usuarios</option>
+            <option value="admin">Administradores</option>
           </select>
           <div class="error-message" id="error-user"></div>
         </div>
