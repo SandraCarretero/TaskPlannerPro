@@ -1,5 +1,11 @@
 import { loadCurrentWeather } from './weather.js';
 
+import {
+  fetchCurrentUser,
+  updateUIForUser,
+  getInitials
+} from './utils/getUser.js';
+
 const API_URL = 'http://localhost:3000/api';
 let currentUser = null;
 
@@ -548,14 +554,13 @@ const ChatModule = (() => {
               ? `<img src="${avatar}" alt="${displayName}" />`
               : `<div class="avatar-initials">${getInitials(displayName)}</div>`
           }
-          <span class="status-indicator ${
-            otherParticipant?.isOnline ? 'online' : 'offline'
-          }"></span>
+          
         </div>
         <div class="contact-info">
           <div class="contact-name">${displayName}</div>
           <div class="contact-last-message">${lastMessage}</div>
         </div>
+        
         <div class="contact-meta">
           <div class="contact-time">${
             conversation.lastMessage
@@ -587,7 +592,14 @@ const ChatModule = (() => {
       `.chat-contact[data-conversation-id="${conversationId}"]`
     );
     if (selectedContact) {
-      selectedContact.classList.add('active');
+      // Solo añadir 'active' si NO estamos en móvil
+      if (!isMobileView()) {
+        selectedContact.classList.add('active');
+      }
+      // En móvil desplazamos panel
+      if (isMobileView()) {
+        selectedContact.addEventListener('click', handleContactClick);
+      }
 
       updateChatHeader(conversationId);
       fetchMessages(conversationId);
@@ -663,9 +675,7 @@ const ChatModule = (() => {
                   otherParticipant.name
                 )}</div>`
           }
-          <span class="status-indicator ${
-            otherParticipant.isOnline ? 'online' : 'offline'
-          }"></span>
+          
         </div>
         <div class="contact-info">
           <div class="contact-name">${otherParticipant.name}</div>
@@ -673,7 +683,20 @@ const ChatModule = (() => {
             otherParticipant.isOnline ? 'En línea' : 'Desconectado'
           }</div>
         </div>
+        
+        ${isMobileView() ? '<i class="fa-solid fa-xmark"></i>' : ''}
+
       `;
+      
+      if (isMobileView()) {
+        const closeIcon = headerElement.querySelector('.fa-xmark');
+        closeIcon?.addEventListener('click', () => {
+          const chatContainer = document.getElementById('chat-container');
+          // Al hacer click, regresar panel al 0%
+          chatContainer.style.transform = 'translateX(0%)';
+          chatContainer.classList.remove('chat-container-mobile-active');
+        });
+      }
     }
   };
 
@@ -859,13 +882,6 @@ const ChatModule = (() => {
         p => p._id !== currentUser._id
       );
       if (!otherParticipant) return;
-
-      const statusIndicator = contact.querySelector('.status-indicator');
-      if (statusIndicator) {
-        statusIndicator.className = `status-indicator ${
-          otherParticipant.isOnline ? 'online' : 'offline'
-        }`;
-      }
     });
 
     // Actualizar encabezado si es la conversación actual
@@ -911,7 +927,6 @@ const ChatModule = (() => {
 
   // Inicializar el módulo
   const init = () => {
-
     if (!authToken) {
       console.error('No hay token de autenticación');
       return;
@@ -965,7 +980,6 @@ const ChatModule = (() => {
         return response.json();
       })
       .then(users => {
-
         if (!Array.isArray(users)) {
           console.error('La respuesta no es un array:', users);
           return;
@@ -1004,9 +1018,7 @@ const ChatModule = (() => {
                       user.name
                     )}</div>`
               }
-              <span class="status-indicator ${
-                user.isOnline ? 'online' : 'offline'
-              }"></span>
+              
             </div>
             <div class="contact-info">
               <div class="contact-name">${user.name}</div>
@@ -1015,7 +1027,10 @@ const ChatModule = (() => {
             <div class="contact-meta">
               <div class="contact-time">Ahora</div>
             </div>
+            
+
           `;
+          
 
           usersContainer.appendChild(contact);
         });
@@ -1051,38 +1066,34 @@ document.addEventListener('DOMContentLoaded', ChatModule.init);
 
 const getCurrentUser = async () => {
   try {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-
-    if (!response.ok) {
-      throw { status: response.status, message: 'Error al obtener usuario' };
-    }
-
-    const data = await response.json();
-    currentUser = data.data.user;
-
-    // Mostrar avatar si existe
-    const avatarElement = document.getElementById('avatar');
-    if (currentUser.avatar) {
-      avatarElement.style.backgroundImage = `url(${API_URL}${currentUser.avatar})`;
-    } else {
-      // Mostrar iniciales si no hay avatar
-      avatarElement.textContent = getInitials(currentUser.name);
-    }
+    currentUser = await fetchCurrentUser(API_URL);
+    updateUIForUser(currentUser, API_URL, 'Chats');
   } catch (error) {
     console.error('Error al obtener usuario:', error);
-    throw error;
   }
 };
 
-const getInitials = name => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0))
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
+const handleContactClick = () => {
+  const chatContainer = document.getElementById('chat-container');
+
+  // Verifica si estamos en la versión móvil (ancho máximo de 768px)
+  if (isMobileView()) {
+    // Aplica la transformación
+    chatContainer.style.transform = 'translateX(-50%)';
+
+    // Opcional: Puedes añadir una clase para manejar la transición en CSS
+    chatContainer.classList.add('chat-container-mobile-active');
+  }
 };
+
+const isMobileView = () => window.innerWidth <= 768;
+
+// Opcional: Manejar el caso de volver al estado original (si es necesario)
+// Por ejemplo, podrías querer revertir la transformación al cambiar la orientación
+// o al redimensionar la ventana por encima de 768px.
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    chatContainer.style.transform = 'translateX(0)';
+    chatContainer.classList.remove('chat-container-mobile-active');
+  }
+});

@@ -73,7 +73,7 @@
             <span>Flowtask</span>
           </div>
           <h1 id="title" class="title">Chat</h1>
-          
+
           <div class="info">
             <div class="info-card weather-card">
               <div class="weather-temp">
@@ -89,7 +89,7 @@
           </div>
         </div>
 
-        <div class="chat-container">
+        <div id="chat-container" class="chat-container">
           <div class="chat-sidebar">
             <div class="chat-search">
               <div class="search-input">
@@ -97,16 +97,18 @@
                 <input type="text" placeholder="Buscar..." id="chat-search" />
               </div>
             </div>
-            
+
             <div class="chat-tabs">
-              <div class="chat-tab active" data-tab="conversations">Conversaciones</div>
+              <div class="chat-tab active" data-tab="conversations">
+                Conversaciones
+              </div>
               <div class="chat-tab" data-tab="users">Usuarios</div>
             </div>
-            
+
             <div class="chat-tab-content active" id="conversations-tab">
               <div id="conversations-container"></div>
             </div>
-            
+
             <div class="chat-tab-content" id="users-tab">
               <div id="users-container"></div>
             </div>

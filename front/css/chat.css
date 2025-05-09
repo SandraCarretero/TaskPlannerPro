@@ -1,13 +1,13 @@
 /* Chat Container */
 .chat-container {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 16px;
+  grid-template-columns: 300px 1fr; /* Mantiene la división original para desktop */
   height: 82dvh;
   background-color: var(--color-white);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   overflow: hidden;
+  width: 98%;
 }
 
 /* Chat Sidebar */
@@ -16,7 +16,21 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100dvw;
+  z-index: 10;
+  background-color: var(--color-white); 
+  transition: transform 0.3s ease-in-out; 
+  transform: translateX(0); 
   overflow: hidden;
+}
+
+/* Oculta la barra lateral en desktop (se mostrará con grid) */
+@media (min-width: 769px) {
+  .chat-sidebar {
+    position: relative;
+    transform: translateX(0); /* Asegura que se muestre en desktop */
+    width: 300px; /* Restaura el ancho original */
+  }
 }
 
 .chat-tabs {
@@ -45,10 +59,6 @@
   max-height: 72dvh;
 }
 
-.chat-tab-content::-webkit-scrollbar {
-  display: none;
-}
-
 .chat-tab-content.active {
   display: block;
 }
@@ -56,6 +66,10 @@
 .chat-search {
   padding: 16px;
   border-bottom: 1px solid var(--color-gray-200);
+}
+
+.chat-tab-content::-webkit-scrollbar {
+  display: none;
 }
 
 .search-input {
@@ -534,32 +548,34 @@
 }
 
 /* Responsive */
-@media (max-width: 992px) {
-  .chat-container {
-    grid-template-columns: 250px 1fr;
-  }
-}
-
 @media (max-width: 768px) {
   .chat-container {
-    grid-template-columns: 1fr;
-  }
-
-  .chat-sidebar {
-    display: none;
-  }
-
-  .chat-sidebar.active {
-    display: flex;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
+    width: 100dvw;
+    height: 100dvh;
   }
 
-  .message {
-    max-width: 85%;
+  .chat-main {
+    width: 100%;
+    height: 100%;
+    z-index: 5; /* Debajo de la sidebar */
+    background-color: var(--color-white);
+    /* Inicialmente oculto */
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .chat-main.active {
+    transform: translateX(0); /* Muestra el chat main */
+  }
+}
+/* Responsive */
+@media (max-width: 992px) {
+  .chat-container {
+    grid-template-columns: 1fr 1fr;
+    width: min-content;
+    overflow-y: auto;
+    transform: translateX(0%);
   }
 }
