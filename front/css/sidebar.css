@@ -58,8 +58,10 @@
   color: var(--color-secundary);
 }
 
-.nav-item:hover {
-  background-color: var(--color-primary-hover);
+@media (hover:hover){
+  .nav-item:hover {
+    background-color: var(--color-primary-hover);
+  }
 }
 
 .nav-item i {

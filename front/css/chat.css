@@ -18,9 +18,9 @@
   height: 100%;
   width: 100dvw;
   z-index: 10;
-  background-color: var(--color-white); 
-  transition: transform 0.3s ease-in-out; 
-  transform: translateX(0); 
+  background-color: var(--color-white);
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0);
   overflow: hidden;
 }
 
@@ -336,11 +336,22 @@
 
 .message-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-end;
+  align-content: flex-end;
+  align-items: flex-end;
+  border-radius: var(--border-radius);
+  padding-inline: 10px;
+  padding-block: 5px;
 }
 
 .message.sent .message-content {
-  align-items: flex-end;
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+.message.received .message-content {
+  background: var(--color-white);
+  color: var(--color-black);
 }
 
 .message-bubble {
@@ -363,8 +374,8 @@
 }
 
 .message-time {
-  font-size: 0.7rem;
-  color: var(--color-gray-500);
+  font-size: 0.6rem;
+  color: var(--color-gray-400);
   margin-top: 2px;
   margin-left: 4px;
 }
@@ -558,7 +569,7 @@
   }
 
   .chat-main {
-    width: 100%;
+    width: 100dvw;
     height: 100%;
     z-index: 5; /* Debajo de la sidebar */
     background-color: var(--color-white);
@@ -568,6 +579,10 @@
 
   .chat-main.active {
     transform: translateX(0); /* Muestra el chat main */
+  }
+
+  .chat-messages {
+    max-height: 67dvh;
   }
 }
 /* Responsive */

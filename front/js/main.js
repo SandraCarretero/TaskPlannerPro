@@ -84,6 +84,9 @@ const getCurrentUser = async () => {
       addTaskBtn.style.display = 'flex';
     }
   } catch (error) {
+    localStorage.removeItem('token');
+    window.location.href = 'html/login.html';
+    
     console.error('Error al obtener usuario:', error);
   }
 };

@@ -679,15 +679,17 @@ const ChatModule = (() => {
         </div>
         <div class="contact-info">
           <div class="contact-name">${otherParticipant.name}</div>
-          <div class="contact-status">${
-            otherParticipant.isOnline ? 'En línea' : 'Desconectado'
-          }</div>
+          <div class="contact-status ${
+            otherParticipant.isOnline ? 'online' : 'offline'
+          }">
+          ${otherParticipant.isOnline ? 'En línea' : 'Desconectado'}
+          </div>
         </div>
         
         ${isMobileView() ? '<i class="fa-solid fa-xmark"></i>' : ''}
 
       `;
-      
+
       if (isMobileView()) {
         const closeIcon = headerElement.querySelector('.fa-xmark');
         closeIcon?.addEventListener('click', () => {
@@ -1030,7 +1032,6 @@ const ChatModule = (() => {
             
 
           `;
-          
 
           usersContainer.appendChild(contact);
         });

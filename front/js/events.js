@@ -236,12 +236,11 @@ const createEventElement = event => {
 
   const dateSpan = document.createElement('span');
   const now = new Date();
-  const startDateIsToday = startDate.toDateString() === now.toDateString();
 
   if (endDate < now) {
     dateSpan.textContent = 'Finalizado';
     eventDate.classList.add('finalizado');
-  } else if (startDateIsToday) {
+  } else if (now >= startDate && now <= endDate) {
     dateSpan.textContent = 'Hoy';
     eventDate.classList.add('hoy');
   } else {

@@ -1,15 +1,3 @@
-.profile-area-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
-  padding-left: 20px;
-}
-
-.profile-area-header .title {
-  margin-bottom: 0;
-}
-
 .profile-container {
   display: flex;
   flex-direction: column;
@@ -18,6 +6,7 @@
   max-height: 80dvh;
   max-width: 85dvw;
   margin: 0 auto;
+  margin-bottom: 100px;
 }
 
 .profile-container::-webkit-scrollbar {
