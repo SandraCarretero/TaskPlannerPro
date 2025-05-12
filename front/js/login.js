@@ -35,6 +35,7 @@ loginForm.addEventListener('submit', async e => {
   const password = document.getElementById('password').value;
 
   try {
+    console.log(API_URL)
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {

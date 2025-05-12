@@ -1,6 +1,6 @@
 // Configuración global
 const config = {
-  PORT: 3000,
+  PORT: process.env.PORT || 3000,
   EMAIL_USER: 'sandracarretero24@gmail.com', // Reemplaza con tu correo Gmail
   EMAIL_PASS: 'gcivsgupwtgxlewc' // Reemplaza con tu contraseña de aplicación
 };
