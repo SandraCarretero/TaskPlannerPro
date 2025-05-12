@@ -6,7 +6,7 @@ import {
   getInitials
 } from './utils/getUser.js';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -46,7 +46,7 @@ const ChatModule = (() => {
   let pendingActions = [];
   let messageQueue = []; // Cola para mensajes cuando no hay conexión
 
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Inicializar WebSocket
   const initWebSocket = () => {
@@ -169,36 +169,8 @@ const ChatModule = (() => {
         break;
 
       case 'CONVERSATIONS_LOADED':
-        // Filtrar para excluir grupos
-        conversations = data.payload.conversations.filter(
-          conv => !conv.isGroup
-        );
-
-        // Solo renderizar conversaciones si hay alguna
-        if (conversations.length > 0) {
-          renderConversations(conversations);
-
-          if (!currentConversationId) {
-            selectConversation(conversations[0]._id);
-          }
-
-          const conversationsTab = document.querySelector(
-            '.chat-tab[data-tab="conversations"]'
-          );
-          if (conversationsTab) {
-            conversationsTab.click();
-          }
-        } else {
-          console.log(
-            'No hay conversaciones, manteniendo la lista de usuarios'
-          );
-          const usersTab = document.querySelector(
-            '.chat-tab[data-tab="users"]'
-          );
-          if (usersTab) {
-            usersTab.click();
-          }
-        }
+        conversations = data.payload.conversations;
+        renderUsersWithConversations(conversations);
         break;
 
       case 'NEW_MESSAGE':
@@ -318,26 +290,107 @@ const ChatModule = (() => {
     }
   };
 
-  // Configurar pestañas
-  const setupTabs = () => {
-    const tabs = document.querySelectorAll('.chat-tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        // Desactivar todas las pestañas
-        tabs.forEach(t => t.classList.remove('active'));
-        // Activar la pestaña seleccionada
-        tab.classList.add('active');
+  const renderUsersWithConversations = conversations => {
+    const container = document.getElementById('contacts-container');
+    if (!container) return;
 
-        // Ocultar todos los contenidos
-        document.querySelectorAll('.chat-tab-content').forEach(content => {
-          content.classList.remove('active');
+    container.innerHTML = ''; // Limpiar
+
+    fetch(`${API_URL}/chat/users`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`
+      }
+    })
+      .then(res => res.json())
+      .then(users => {
+        // Ordenar por fecha del último mensaje
+        users.sort((a, b) => {
+          const convA = conversations.find(c =>
+            c.participants.some(p => p._id === a._id)
+          );
+          const convB = conversations.find(c =>
+            c.participants.some(p => p._id === b._id)
+          );
+
+          const dateA = convA ? new Date(convA.lastMessage?.createdAt || 0) : 0;
+          const dateB = convB ? new Date(convB.lastMessage?.createdAt || 0) : 0;
+
+          return dateB - dateA;
         });
 
-        // Mostrar el contenido correspondiente
-        const tabName = tab.dataset.tab;
-        document.getElementById(`${tabName}-tab`).classList.add('active');
-      });
-    });
+        users.forEach(user => {
+          if (user._id === currentUser._id) return;
+
+          const conversation = conversations.find(conv =>
+            conv.participants.some(p => p._id === user._id)
+          );
+
+          const displayName = user.name;
+          const avatar = user.avatar ? `${API_URL}${user.avatar}` : null;
+
+          const lastMessage = conversation?.lastMessage
+            ? (conversation.lastMessage.sender === currentUser._id
+                ? 'Tú: '
+                : '') + conversation.lastMessage.text
+            : 'Inicia una conversación';
+
+          const showUnreadDot =
+            conversation &&
+            conversation.lastMessage &&
+            !conversation.lastMessage.read &&
+            conversation.lastMessage.sender !== currentUser._id;
+
+          const contactElement = document.createElement('div');
+          contactElement.className = `chat-contact${
+            currentConversationId === conversation?._id ? ' active' : ''
+          }`;
+
+          if (conversation) {
+            contactElement.dataset.conversationId = conversation._id;
+          }
+          contactElement.dataset.contactId = user._id;
+          contactElement.dataset.isGroup = 'false';
+
+          contactElement.innerHTML = `
+          <div class="contact-avatar profile-avatar">
+            ${
+              avatar
+                ? `<img src="${avatar}" alt="${displayName}" />`
+                : `<div class="avatar-initials">${getInitials(
+                    displayName
+                  )}</div>`
+            }
+          </div>
+          <div class="contact-info">
+            <div class="contact-name">${displayName}</div>
+            <div class="contact-last-message">${lastMessage}</div>
+          </div>
+          <div class="contact-meta">
+            <div class="contact-time">
+              ${
+                conversation?.lastMessage
+                  ? formatTime(new Date(conversation.lastMessage.createdAt))
+                  : ''
+              }
+            </div>
+            ${showUnreadDot ? '<span class="unread-dot"></span>' : ''}
+          </div>
+        `;
+
+          if (conversation) {
+            contactElement.addEventListener('click', () => {
+              selectConversation(conversation._id);
+            });
+          } else {
+            contactElement.addEventListener('click', () => {
+              startOrOpenConversation(user._id);
+            });
+          }
+
+          container.appendChild(contactElement);
+        });
+      })
+      .catch(err => console.error('Error al cargar usuarios:', err));
   };
 
   // Configurar eventos de la interfaz
@@ -488,98 +541,6 @@ const ChatModule = (() => {
     }
   };
 
-  // Renderizar lista de conversaciones
-  const renderConversations = conversations => {
-    const conversationsContainer = document.getElementById(
-      'conversations-container'
-    );
-    if (!conversationsContainer) return;
-
-    conversationsContainer.innerHTML = '';
-
-    if (conversations.length === 0) {
-      conversationsContainer.innerHTML =
-        '<div class="no-conversations">No hay conversaciones</div>';
-      return;
-    }
-
-    conversations.forEach(conversation => {
-      let displayName, avatar, lastMessage, unreadCount;
-      let otherParticipant;
-
-      if (!conversation.isGroup) {
-        otherParticipant = conversation.participants.find(
-          p => p._id !== currentUser._id
-        );
-
-        displayName = otherParticipant
-          ? otherParticipant.name
-          : 'Usuario desconocido';
-
-        // Usar avatar del otro participante o iniciales si no tiene
-        if (otherParticipant?.avatar) {
-          avatar = `${API_URL}${otherParticipant.avatar}`;
-        } else {
-          avatar = null; // Se usarán iniciales
-        }
-      } else {
-        // Saltamos las conversaciones de grupo
-        return;
-      }
-
-      lastMessage = conversation.lastMessage
-        ? (conversation.lastMessage.sender === currentUser._id ? 'Tú: ' : '') +
-          conversation.lastMessage.text
-        : 'No hay mensajes';
-
-      unreadCount = 0;
-
-      const contactElement = document.createElement('div');
-      contactElement.className = `chat-contact${
-        currentConversationId === conversation._id ? ' active' : ''
-      }`;
-      contactElement.dataset.conversationId = conversation._id;
-      contactElement.dataset.contactId = otherParticipant._id; // Añadir también el ID de contacto
-      contactElement.dataset.isGroup = 'false';
-
-      const showUnreadDot =
-        conversation.lastMessage &&
-        !conversation.lastMessage.read &&
-        conversation.lastMessage.sender !== currentUser._id;
-
-      contactElement.innerHTML = `
-        <div class="contact-avatar profile-avatar">
-          ${
-            avatar
-              ? `<img src="${avatar}" alt="${displayName}" />`
-              : `<div class="avatar-initials">${getInitials(displayName)}</div>`
-          }
-          
-        </div>
-        <div class="contact-info">
-          <div class="contact-name">${displayName}</div>
-          <div class="contact-last-message">${lastMessage}</div>
-        </div>
-        
-        <div class="contact-meta">
-          <div class="contact-time">${
-            conversation.lastMessage
-              ? formatTime(new Date(conversation.lastMessage.createdAt))
-              : ''
-          }</div>
-          ${
-            unreadCount > 0
-              ? `<div class="contact-unread-indicator"></div>`
-              : ''
-          }
-          ${showUnreadDot ? '<span class="unread-dot"></span>' : ''}
-        </div>
-      `;
-
-      conversationsContainer.appendChild(contactElement);
-    });
-  };
-
   // Seleccionar una conversación
   const selectConversation = conversationId => {
     currentConversationId = conversationId;
@@ -646,6 +607,22 @@ const ChatModule = (() => {
       }
     }
 
+    const conversation = conversations.find(
+      c => c._id === currentConversationId
+    );
+    if (conversation) {
+      // Creamos un nuevo objeto para simular el nuevo mensaje como si ya fuera el último
+      const fakeMessage = {
+        _id: 'local-temp-id',
+        sender: currentUser._id,
+        text: text,
+        createdAt: new Date().toISOString(),
+        read: false
+      };
+
+      updateConversationWithNewMessage(currentConversationId, fakeMessage);
+    }
+
     // Limpiar el campo de entrada
     const messageInput = document.getElementById('message-input');
     if (messageInput) {
@@ -657,6 +634,8 @@ const ChatModule = (() => {
   const updateChatHeader = conversationId => {
     const conversation = conversations.find(c => c._id === conversationId);
     if (!conversation) return;
+
+    const chatContainer = document.getElementById('chat-container');
 
     const headerElement = document.getElementById('chat-header');
     if (!headerElement) return;
@@ -784,6 +763,13 @@ const ChatModule = (() => {
   };
 
   const updateConversationWithNewMessage = (conversationId, message) => {
+    if (!conversations.some(c => c._id === currentConversationId)) {
+      conversations.push({
+        _id: currentConversationId,
+        participants: [], // opcional si ya fue rellenado antes
+        lastMessage: null
+      });
+    }
     const conversation = conversations.find(c => c._id === conversationId);
     if (!conversation) return;
 
@@ -792,15 +778,13 @@ const ChatModule = (() => {
 
     // Reordenar conversaciones (la más reciente primero)
     conversations.sort((a, b) => {
-      if (!a.lastMessage) return 1;
-      if (!b.lastMessage) return -1;
-      return (
-        new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt)
-      );
+      const dateA = new Date(a.lastMessage?.createdAt || 0);
+      const dateB = new Date(b.lastMessage?.createdAt || 0);
+      return dateB - dateA;
     });
 
     // Volver a renderizar
-    renderConversations(conversations);
+    renderUsersWithConversations(conversations);
   };
 
   const displayMessage = message => {
@@ -943,9 +927,6 @@ const ChatModule = (() => {
 
         currentUser = userData.data.user;
 
-        // Configurar pestañas
-        setupTabs();
-
         // Cargar usuarios
         loadUsers();
 
@@ -987,7 +968,7 @@ const ChatModule = (() => {
           return;
         }
 
-        const usersContainer = document.getElementById('users-container');
+        const usersContainer = document.getElementById('contacts-container');
         if (!usersContainer) {
           console.error('No se encontró el contenedor de usuarios');
           return;
