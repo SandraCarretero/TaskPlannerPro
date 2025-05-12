@@ -235,29 +235,6 @@ const setupEventListeners = () => {
     .getElementById('avatar-file')
     .addEventListener('change', previewAvatar);
 
-  // Botones de administración (solo para administradores)
-  if (currentUser && currentUser.role === 'admin') {
-    document.getElementById('manage-users').addEventListener('click', () => {
-      // Implementar gestión de usuarios
-      alert('Funcionalidad de gestión de usuarios en desarrollo');
-    });
-
-    document.getElementById('manage-tasks').addEventListener('click', () => {
-      // Implementar gestión de tareas
-      alert('Funcionalidad de gestión de tareas en desarrollo');
-    });
-
-    document.getElementById('manage-events').addEventListener('click', () => {
-      // Implementar gestión de eventos
-      alert('Funcionalidad de gestión de eventos en desarrollo');
-    });
-
-    document.getElementById('manage-photos').addEventListener('click', () => {
-      // Implementar gestión de fotos
-      alert('Funcionalidad de gestión de fotos en desarrollo');
-    });
-  }
-
   // Cerrar modales al hacer clic fuera
   window.addEventListener('click', e => {
     if (e.target === editProfileModal) {

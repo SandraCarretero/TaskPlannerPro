@@ -47,13 +47,13 @@ const ChatModule = (() => {
   let pendingActions = [];
   let messageQueue = []; // Cola para mensajes cuando no hay conexión
 
-const API_URL = 'https://taskplannerpro-api.onrender.com/api'
+  const API_URL = 'https://taskplannerpro-api.onrender.com/api';
 
   // Inicializar WebSocket
   const initWebSocket = () => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.hostname || 'localhost';
-    const port = 3000;
+    const port = window.location.hostname === 'localhost' ? ':3000' : '';
     // Asegurarse de que el token está correctamente codificado para URL
     const encodedToken = encodeURIComponent(authToken);
     const wsUrl = `${protocol}//${host}:${port}?token=${encodedToken}`;
@@ -1058,12 +1058,12 @@ const getCurrentUser = async () => {
 
 const handleContactClick = () => {
   const chatContainer = document.getElementById('contacts-container');
-  
+
   // Verifica si estamos en la versión móvil (ancho máximo de 768px)
   if (isMobileView()) {
     // Aplica la transformación
     chatContainer.style.transform = 'translateX(-50%)';
-    
+
     // Opcional: Puedes añadir una clase para manejar la transición en CSS
     chatContainer.classList.add('chat-container-mobile-active');
   }
