@@ -6,7 +6,8 @@ let events = [];
 let currentUser = null;
 
 // URL base para la API
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = 'https://taskplannerpro-api.onrender.com/api';
+
 // Elementos DOM
 const eventsContainer = document.getElementById('events-container');
 const modal = document.getElementById('event-modal');
