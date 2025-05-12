@@ -13,7 +13,7 @@ let selectedPriority = 'all';
 
 // URL base para la API
 const API_URL = import.meta.env.VITE_API_URL;
-console.log(import.meta.env.VITE_API_URL);
+console.log(API_URL);
 
 // Elementos DOM
 const taskColumns = {
