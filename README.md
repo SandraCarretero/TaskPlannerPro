@@ -1,6 +1,6 @@
 # 🗂️ Flowtask
 
-![Imagen del proyecto](https://github.com/SandraCarretero/TaskPlannerPro/blob/main/img/readme/flowtask_landing.png)
+![Imagen del proyecto](https://github.com/SandraCarretero/TaskPlannerPro/blob/main/front/img/readme/flowtask_landing.png)
 
 ## Descripción 📑
 
@@ -52,13 +52,13 @@ Registro e inicio de sesión
 
 Este proyecto me ha permitido aplicar y consolidar muchos de los conocimientos adquiridos durante mi formación, entre ellos:
 
-✅ Separar responsabilidades entre frontend y backend
-✅ Diseñar una API RESTful y consumirla desde el cliente
-✅ Aplicar principios SOLID y buenas prácticas de arquitectura
-✅ Trabajar con control de accesos por roles (usuario vs administrador)
-✅ Usar WebSockets para comunicación en tiempo real
-✅ Integrar APIs externas para enriquecer la experiencia del usuario
-✅ Modularizar todo el código para facilitar mantenimiento y escalabilidad
+- Separar responsabilidades entre frontend y backend
+- Diseñar una API RESTful y consumirla desde el cliente
+- Aplicar principios SOLID y buenas prácticas de arquitectura
+- Trabajar con control de accesos por roles (usuario vs administrador)
+- Usar WebSockets para comunicación en tiempo real
+- Integrar APIs externas para enriquecer la experiencia del usuario
+- Modularizar todo el código para facilitar mantenimiento y escalabilidad
 
 ## 🛠️ Tecnologías utilizadas
 
