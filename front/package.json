@@ -1,0 +1,15 @@
+{
+  "name": "taskplanner-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Task Planner",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",               
+    "build": "vite build",      
+    "preview": "vite preview"  
+  },
+  "devDependencies": {
+    "vite": "^4.0.0",          
+    "serve": "^14.2.4"       
+  }
+}

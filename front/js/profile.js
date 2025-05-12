@@ -2,7 +2,7 @@
 let currentUser = null;
 
 // URL base para la API
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Elementos DOM
 const profileName = document.getElementById('profile-name');

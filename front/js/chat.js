@@ -6,7 +6,7 @@ import {
   getInitials
 } from './utils/getUser.js';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -46,7 +46,7 @@ const ChatModule = (() => {
   let pendingActions = [];
   let messageQueue = []; // Cola para mensajes cuando no hay conexión
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
   // Inicializar WebSocket
   const initWebSocket = () => {
