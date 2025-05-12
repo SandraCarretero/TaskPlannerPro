@@ -1,11 +1,9 @@
-// Configuración global
 const config = {
   PORT: process.env.PORT || 3000,
   EMAIL_USER: 'sandracarretero24@gmail.com',
   EMAIL_PASS: 'gcivsgupwtgxlewc' 
 };
 
-// Configuración de Nodemailer
 const createTransporter = () => {
   const nodemailer = require('nodemailer');
 
