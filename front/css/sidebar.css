@@ -47,6 +47,7 @@
   color: var(--color-secundary);
   aspect-ratio: 1;
   width: 42px;
+  display: none;
 }
 
 .hidden-mobile {
