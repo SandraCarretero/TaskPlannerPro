@@ -3,10 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const { AppError } = require('../utils/errorUtil');
 
-// Obtener la ruta base del proyecto (backend)
 const basePath = path.resolve(__dirname, '../../');
 
-// Asegurar que existan los directorios para subir archivos
 const createUploadDirs = () => {
   const dirs = [
     path.join(basePath, 'uploads'),
@@ -23,7 +21,6 @@ const createUploadDirs = () => {
 
 createUploadDirs();
 
-// Configuración para subir fotos
 const photoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(basePath, 'uploads/photos'));
@@ -52,14 +49,13 @@ exports.uploadPhoto = multer({
   storage: photoStorage,
   fileFilter: photoFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: 5 * 1024 * 1024 
   }
 });
 
-// Configuración para subir avatares
 const avatarStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(basePath, 'uploads/avatar')); // Cambiado a avatar (singular)
+    cb(null, path.join(basePath, 'uploads/avatar')); 
   },
   filename: (req, file, cb) => {
     const ext = file.mimetype.split('/')[1];
