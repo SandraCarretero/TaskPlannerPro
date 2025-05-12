@@ -15,7 +15,7 @@ export const weatherService = {
       return {
         temperature: data.main.temp,
         description: data.weather[0].description,
-        icon: `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`
+        icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`
       };
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -49,7 +49,7 @@ export const weatherService = {
         return {
           temperature: forecast.main.temp,
           description: data.weather[0].description,
-          icon: `http://openweathermap.org/img/wn/${forecast.weather[0].icon}.png`
+          icon: `https://openweathermap.org/img/wn/${forecast.weather[0].icon}.png`
         };
       } else {
         throw new Error(

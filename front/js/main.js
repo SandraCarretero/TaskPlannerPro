@@ -1,5 +1,5 @@
 import { loadCurrentWeather } from './weather.js';
-// import { loadNews } from './news.js';
+import { loadNews } from './news.js';
 import {
   fetchCurrentUser,
   updateUIForUser,
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadCurrentWeather('Madrid');
 
     // Cargar noticias
-    // loadNews();
+    loadNews();
 
     // Configurar eventos
     setupEventListeners();
@@ -667,16 +667,16 @@ const setupEventListeners = () => {
   });
 
   // Formulario de búsqueda de noticias
-  // const newsSearchForm = document.getElementById('news-search-form');
-  // if (newsSearchForm) {
-  //   newsSearchForm.addEventListener('submit', e => {
-  //     e.preventDefault();
-  //     const query = document.getElementById('news-search').value.trim();
-  //     if (query) {
-  //       loadNews(query);
-  //     }
-  //   });
-  // }
+  const newsSearchForm = document.getElementById('news-search-form');
+  if (newsSearchForm) {
+    newsSearchForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const query = document.getElementById('news-search').value.trim();
+      if (query) {
+        loadNews(query);
+      }
+    });
+  }
 
   // Cerrar modales al hacer clic fuera
   window.addEventListener('click', e => {
