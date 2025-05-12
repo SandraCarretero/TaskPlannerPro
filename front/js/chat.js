@@ -51,12 +51,17 @@ const ChatModule = (() => {
 
   // Inicializar WebSocket
   const initWebSocket = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname || 'localhost';
-    const port = window.location.hostname === 'localhost' ? ':3000' : '';
-    // Asegurarse de que el token está correctamente codificado para URL
+    // const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // const host = window.location.hostname || 'localhost';
+    // const port = 3000;
+    // // Asegurarse de que el token está correctamente codificado para URL
+    // const wsUrl = `${protocol}//${host}:${port}?token=${encodedToken}`;
     const encodedToken = encodeURIComponent(authToken);
-    const wsUrl = `${protocol}//${host}:${port}?token=${encodedToken}`;
+    const isLocalhost = window.location.hostname === 'localhost';
+
+    const wsUrl = isLocalhost
+      ? `ws://localhost:3000?token=${encodedToken}`
+      : `wss://taskplannerpro-api.onrender.com?token=${encodedToken}`;
 
     console.log(`Conectando a WebSocket: ${wsUrl}`);
 
