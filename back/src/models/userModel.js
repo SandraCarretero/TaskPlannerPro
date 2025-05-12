@@ -31,10 +31,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['user', 'admin'],
-    default: function () {
-      // Establecer el rol predeterminado basado en el email
-      return this.email && this.email.endsWith('@admin.com') ? 'admin' : 'user';
-    }
+    required: true
   },
   avatar: {
     type: String,

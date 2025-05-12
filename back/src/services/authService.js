@@ -17,7 +17,8 @@ exports.registerUser = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new AppError('El email ya está registrado', 400);
 
-  const user = new User({ name, email, password });
+  const role = email.endsWith('@admin.com') ? 'admin' : 'user';
+  const user = new User({ name, email, password, role });
   await user.save();
 
   await sendRegistrationConfirmation({ name: user.name, email: user.email });

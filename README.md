@@ -94,14 +94,14 @@ Este proyecto me ha permitido aplicar y consolidar muchos de los conocimientos a
 - Variables de entorno configuradas
 
 🖥️ Iniciar Backend
-cd backend
-npm install
-node server.js
+- cd backend
+- npm install
+- node server.js
 
 💻 Iniciar Frontend
-cd frontend
-npm install
-npm run dev
+- cd frontend
+- npm install
+- npm run dev
 
 ## Licencia 📄
 
