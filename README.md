@@ -13,11 +13,13 @@
 ## ✨ Funcionalidades principales
 
 👥 Autenticación y usuarios
-Registro e inicio de sesión
-
+- Registro e inicio de sesión
 - Gestión de perfil: nombre, avatar, contraseña
 - Cierre de sesión y eliminación de cuenta
 - Vista de estadísticas personales (eventos, tareas por estado)
+- **El rol de usuario se asigna automáticamente según el correo:**
+  - Si el email termina en `@admin.com`, se asigna el rol de **Administrador**
+  - Si no, es un **Usuario estándar**
 
 📝 Tareas
 
