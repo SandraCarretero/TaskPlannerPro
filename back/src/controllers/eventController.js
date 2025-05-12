@@ -1,7 +1,6 @@
 const eventService = require('../services/eventService');
 const { AppError } = require('../utils/errorUtil');
 
-// Obtener todos los eventos del usuario
 exports.getEvents = async (req, res, next) => {
   try {
     const events = await eventService.getUserEvents(req.user.id);
@@ -15,7 +14,6 @@ exports.getEvents = async (req, res, next) => {
   }
 };
 
-// Obtener un evento específico
 exports.getEvent = async (req, res, next) => {
   try {
     const event = await eventService.getEventById(req.params.id, req.user.id);
@@ -29,7 +27,6 @@ exports.getEvent = async (req, res, next) => {
   }
 };
 
-// Crear un nuevo evento
 exports.createEvent = async (req, res, next) => {
   try {
     const eventData = { ...req.body };
@@ -43,7 +40,6 @@ exports.createEvent = async (req, res, next) => {
   }
 };
 
-// Actualizar un evento
 exports.updateEvent = async (req, res, next) => {
   try {
     const updates = req.body;
@@ -58,7 +54,6 @@ exports.updateEvent = async (req, res, next) => {
   }
 };
 
-// Eliminar un evento
 exports.deleteEvent = async (req, res, next) => {
   try {
     const deleted = await eventService.deleteEvent(req.params.id);
@@ -69,7 +64,6 @@ exports.deleteEvent = async (req, res, next) => {
   }
 };
 
-// Obtener todos los eventos (solo admin)
 exports.getAllEvents = async (req, res, next) => {
   try {
     if (req.user.role !== 'admin') {
