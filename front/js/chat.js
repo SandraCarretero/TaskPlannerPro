@@ -617,16 +617,24 @@ const ChatModule = (() => {
       c => c._id === currentConversationId
     );
     if (conversation) {
-      // Creamos un nuevo objeto para simular el nuevo mensaje como si ya fuera el último
-      const fakeMessage = {
-        _id: 'local-temp-id',
-        sender: currentUser._id,
-        text: text,
-        createdAt: new Date().toISOString(),
-        read: false
-      };
+      // Comprobamos si el mensaje ya está presente en la conversación
+      const existingMessage = conversation.messages.find(
+        msg => msg.text === text && msg.timestamp === message.timestamp
+      );
 
-      updateConversationWithNewMessage(currentConversationId, fakeMessage);
+      if (!existingMessage) {
+        // Creamos un nuevo objeto para simular el nuevo mensaje solo si no existe
+        const fakeMessage = {
+          _id: 'local-temp-id',
+          sender: currentUser._id,
+          text: text,
+          createdAt: new Date().toISOString(),
+          read: false
+        };
+
+        // Actualizamos la conversación con el nuevo mensaje
+        updateConversationWithNewMessage(currentConversationId, fakeMessage);
+      }
     }
 
     // Limpiar el campo de entrada
@@ -768,30 +776,34 @@ const ChatModule = (() => {
     }).format(date);
   };
 
-  const updateConversationWithNewMessage = (conversationId, message) => {
-    if (!conversations.some(c => c._id === currentConversationId)) {
-      conversations.push({
-        _id: currentConversationId,
-        participants: [], // opcional si ya fue rellenado antes
-        lastMessage: null
-      });
-    }
-    const conversation = conversations.find(c => c._id === conversationId);
-    if (!conversation) return;
+const updateConversationWithNewMessage = (conversationId, message) => {
+  // Buscar la conversación existente
+  let conversation = conversations.find(c => c._id === conversationId);
 
-    // Actualizar último mensaje
-    conversation.lastMessage = message;
+  // Si no existe la conversación, agregarla
+  if (!conversation) {
+    conversation = {
+      _id: conversationId,
+      participants: [], // opcional si ya fue rellenado antes
+      lastMessage: null
+    };
+    conversations.push(conversation);
+  }
 
-    // Reordenar conversaciones (la más reciente primero)
-    conversations.sort((a, b) => {
-      const dateA = new Date(a.lastMessage?.createdAt || 0);
-      const dateB = new Date(b.lastMessage?.createdAt || 0);
-      return dateB - dateA;
-    });
+  // Actualizar el último mensaje de la conversación
+  conversation.lastMessage = message;
 
-    // Volver a renderizar
-    renderUsersWithConversations(conversations);
-  };
+  // Reordenar las conversaciones para que la más reciente esté al principio
+  conversations.sort((a, b) => {
+    const dateA = new Date(a.lastMessage?.createdAt || 0);
+    const dateB = new Date(b.lastMessage?.createdAt || 0);
+    return dateB - dateA;
+  });
+
+  // Volver a renderizar las conversaciones
+  renderUsersWithConversations(conversations);
+};
+
 
   const displayMessage = message => {
     const messagesContainer = document.getElementById('chat-messages');
