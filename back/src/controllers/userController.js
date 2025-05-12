@@ -1,4 +1,3 @@
-// controllers/userController.js
 const userService = require('../services/userService');
 
 exports.getAllUsers = async (req, res, next) => {
