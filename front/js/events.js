@@ -13,6 +13,7 @@ const eventsContainer = document.getElementById('events-container');
 const modal = document.getElementById('event-modal');
 const deleteModal = document.getElementById('delete-modal');
 const addEventBtn = document.getElementById('addEvent');
+const addEventMenuBtn = document.getElementById('addEventMenu');
 const cancelBtn = document.getElementById('cancel-button');
 const saveBtn = document.getElementById('save-button');
 const confirmDeleteBtn = document.getElementById('confirm-delete');
@@ -60,6 +61,9 @@ const getCurrentUser = async () => {
     if (currentUser.role === 'admin') {
       addEventBtn.style.display = 'flex';
       roleFilterBtn.style.display = 'flex';
+      if (isMobileView()) {
+        addEventMenuBtn.style.display = 'flex';
+      }
     }
   } catch (error) {
     console.error('Error al obtener usuario:', error);
@@ -578,6 +582,10 @@ const setupEventListeners = () => {
   // Botón para agregar evento
   addEventBtn.addEventListener('click', openNewEventModal);
 
+  if (addEventMenuBtn) {
+    addEventMenuBtn.addEventListener('click', openNewEventModal);
+  }
+
   // Botones del modal de evento
   cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
   saveBtn.addEventListener('click', saveEvent);
@@ -650,3 +658,5 @@ const formatDateTimeForInput = dateString => {
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
+
+const isMobileView = () => window.innerWidth <= 768;

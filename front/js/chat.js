@@ -686,8 +686,7 @@ const ChatModule = (() => {
       if (isMobileView()) {
         const closeIcon = headerElement.querySelector('.fa-xmark');
         closeIcon?.addEventListener('click', () => {
-          const chatContainer = document.getElementById('contacts-container');
-          // Al hacer click, regresar panel al 0%
+          const chatContainer = document.getElementById('chat-container');
           chatContainer.style.transform = 'translateX(0%)';
           chatContainer.classList.remove('chat-container-mobile-active');
         });
@@ -776,34 +775,33 @@ const ChatModule = (() => {
     }).format(date);
   };
 
-const updateConversationWithNewMessage = (conversationId, message) => {
-  // Buscar la conversación existente
-  let conversation = conversations.find(c => c._id === conversationId);
+  const updateConversationWithNewMessage = (conversationId, message) => {
+    // Buscar la conversación existente
+    let conversation = conversations.find(c => c._id === conversationId);
 
-  // Si no existe la conversación, agregarla
-  if (!conversation) {
-    conversation = {
-      _id: conversationId,
-      participants: [], // opcional si ya fue rellenado antes
-      lastMessage: null
-    };
-    conversations.push(conversation);
-  }
+    // Si no existe la conversación, agregarla
+    if (!conversation) {
+      conversation = {
+        _id: conversationId,
+        participants: [], // opcional si ya fue rellenado antes
+        lastMessage: null
+      };
+      conversations.push(conversation);
+    }
 
-  // Actualizar el último mensaje de la conversación
-  conversation.lastMessage = message;
+    // Actualizar el último mensaje de la conversación
+    conversation.lastMessage = message;
 
-  // Reordenar las conversaciones para que la más reciente esté al principio
-  conversations.sort((a, b) => {
-    const dateA = new Date(a.lastMessage?.createdAt || 0);
-    const dateB = new Date(b.lastMessage?.createdAt || 0);
-    return dateB - dateA;
-  });
+    // Reordenar las conversaciones para que la más reciente esté al principio
+    conversations.sort((a, b) => {
+      const dateA = new Date(a.lastMessage?.createdAt || 0);
+      const dateB = new Date(b.lastMessage?.createdAt || 0);
+      return dateB - dateA;
+    });
 
-  // Volver a renderizar las conversaciones
-  renderUsersWithConversations(conversations);
-};
-
+    // Volver a renderizar las conversaciones
+    renderUsersWithConversations(conversations);
+  };
 
   const displayMessage = message => {
     const messagesContainer = document.getElementById('chat-messages');

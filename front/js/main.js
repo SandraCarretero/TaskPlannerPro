@@ -82,6 +82,9 @@ const getCurrentUser = async () => {
 
     if (currentUser.role === 'admin') {
       addTaskBtn.style.display = 'flex';
+      if (isMobileView()) {
+        addTaskMenuBtn.style.display = 'flex';
+      }
     }
   } catch (error) {
     localStorage.removeItem('token');
@@ -725,3 +728,5 @@ const formatDateForInput = dateString => {
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
+
+const isMobileView = () => window.innerWidth <= 768;
