@@ -104,6 +104,12 @@
   gap: 12px;
 }
 
+#change-password-form .form-group,
+#edit-profile-form .form-group
+{
+  width: 100%;
+}
+
 .stats-section {
   background-color: var(--color-white);
   border-radius: var(--border-radius);
