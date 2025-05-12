@@ -11,23 +11,19 @@ const API_URL = 'https://taskplannerpro-api.onrender.com/api';
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Verificar si hay un token en localStorage
   const token = localStorage.getItem('token');
   if (!token) {
-    // Redirigir a la página de login si no hay token
     window.location.href = 'login.html';
     return;
   }
 
   try {
-    // Obtener información del usuario actual
     await getCurrentUser();
 
     loadCurrentWeather('Madrid');
   } catch (error) {
     console.error('Error al inicializar la aplicación:', error);
 
-    // Si hay un error de autenticación, redirigir al login
     if (error.status === 401) {
       localStorage.removeItem('token');
       window.location.href = 'login.html';
@@ -35,9 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Módulo de chat
 const ChatModule = (() => {
-  // Variables privadas
   let socket;
   let currentUser = null;
   let currentConversationId = null;
@@ -45,7 +39,7 @@ const ChatModule = (() => {
   let isConnected = false;
   const authToken = localStorage.getItem('token');
   let pendingActions = [];
-  let messageQueue = []; // Cola para mensajes cuando no hay conexión
+  let messageQueue = []; 
 
   const API_URL = 'https://taskplannerpro-api.onrender.com/api';
 
@@ -54,7 +48,6 @@ const ChatModule = (() => {
     // const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // const host = window.location.hostname || 'localhost';
     // const port = 3000;
-    // // Asegurarse de que el token está correctamente codificado para URL
     // const wsUrl = `${protocol}//${host}:${port}?token=${encodedToken}`;
     const encodedToken = encodeURIComponent(authToken);
     const isLocalhost = window.location.hostname === 'localhost';
@@ -136,7 +129,6 @@ const ChatModule = (() => {
     }
   };
 
-  // Manejar mensajes entrantes
   const handleIncomingMessage = data => {
     switch (data.type) {
       case 'CONNECTED':
@@ -146,7 +138,6 @@ const ChatModule = (() => {
       case 'CONVERSATION_STARTED':
         const newConversationId = data.payload.conversationId;
 
-        // Forzar recarga de las conversaciones desde el servidor
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(
             JSON.stringify({
@@ -159,18 +150,16 @@ const ChatModule = (() => {
           );
         }
 
-        // Esperar un poco y seleccionar la nueva conversación
         setTimeout(() => {
           selectConversation(newConversationId);
 
-          // Activar la pestaña de conversaciones
           const conversationsTab = document.querySelector(
             '.chat-tab[data-tab="conversations"]'
           );
           if (conversationsTab) {
             conversationsTab.click();
           }
-        }, 500); // Puedes ajustar el tiempo si es necesario
+        }, 500);
 
         break;
 
@@ -197,14 +186,12 @@ const ChatModule = (() => {
 
           markMessagesAsRead(conversation, [message]);
         } else {
-          // Si no estamos en la conversación, asegurarnos de que aparezca el indicador de mensaje no leído
           if (message.sender._id !== currentUser._id) {
             const contactElement = document.querySelector(
               `.chat-contact[data-conversation-id="${conversation}"]`
             );
 
             if (contactElement) {
-              // Solo añadir el punto si no existe ya
               if (!contactElement.querySelector('.unread-dot')) {
                 const dotElement = document.createElement('span');
                 dotElement.className = 'unread-dot';
@@ -236,12 +223,10 @@ const ChatModule = (() => {
 
       case 'AUTH_SUCCESS':
         console.log('Autenticación exitosa:', data.payload);
-        // Puedes actualizar la UI para mostrar que estás autenticado
         break;
 
       case 'AUTH_ERROR':
         console.error('Error de autenticación:', data.payload.message);
-        // Mostrar mensaje de error al usuario
         alert('Error de autenticación: ' + data.payload.message);
         break;
 
@@ -250,7 +235,6 @@ const ChatModule = (() => {
     }
   };
 
-  // Actualizar estado de escritura
   const updateTypingStatus = data => {
     const { userId, conversationId, isTyping } = data;
 
@@ -276,7 +260,6 @@ const ChatModule = (() => {
     }
   };
 
-  // Obtener información del usuario actual
   const fetchCurrentUser = async () => {
     try {
       const response = await fetch(`${API_URL}/auth/me`, {
@@ -300,7 +283,7 @@ const ChatModule = (() => {
     const container = document.getElementById('contacts-container');
     if (!container) return;
 
-    container.innerHTML = ''; // Limpiar
+    container.innerHTML = ''; 
 
     fetch(`${API_URL}/chat/users`, {
       headers: {
@@ -309,7 +292,6 @@ const ChatModule = (() => {
     })
       .then(res => res.json())
       .then(users => {
-        // Ordenar por fecha del último mensaje
         users.sort((a, b) => {
           const convA = conversations.find(c =>
             c.participants.some(p => p._id === a._id)
@@ -399,7 +381,6 @@ const ChatModule = (() => {
       .catch(err => console.error('Error al cargar usuarios:', err));
   };
 
-  // Configurar eventos de la interfaz
   const setupEventListeners = () => {
     const sendButton = document.getElementById('send-message');
     const messageInput = document.getElementById('message-input');
@@ -412,7 +393,6 @@ const ChatModule = (() => {
         }
       });
 
-      // Manejar clics en conversaciones
       const conversationsContainer = document.getElementById(
         'conversations-container'
       );
@@ -428,7 +408,6 @@ const ChatModule = (() => {
         });
       }
 
-      // Manejar clics en usuarios
       const usersContainer = document.getElementById('users-container');
       if (usersContainer) {
         usersContainer.addEventListener('click', e => {
@@ -501,8 +480,7 @@ const ChatModule = (() => {
       });
     }
   };
-
-  // Iniciar o abrir una conversación con un usuario
+  
   const startOrOpenConversation = userId => {
     if (userId === currentUser._id) {
       console.error('No puedes iniciar una conversación contigo mismo');
@@ -529,25 +507,20 @@ const ChatModule = (() => {
         );
       } else {
         console.error(
-          'No hay conexión con el servidor de chat. Estado:',
           socket ? socket.readyState : 'socket no inicializado'
         );
 
-        // Mostrar mensaje al usuario
         alert(
           'No se puede iniciar la conversación porque no hay conexión con el servidor. Intentando reconectar...'
         );
-
-        // Intentar reconectar
+        
         initWebSocket();
 
-        // Guardar la acción para intentarla de nuevo cuando se conecte
         pendingActions.push(() => startOrOpenConversation(userId));
       }
     }
   };
 
-  // Seleccionar una conversación
   const selectConversation = conversationId => {
     currentConversationId = conversationId;
 
@@ -585,7 +558,6 @@ const ChatModule = (() => {
     }
   };
 
-  // Enviar mensaje
   const sendMessage = text => {
     if (!currentConversationId) {
       console.error('No hay conversación seleccionada');
@@ -607,7 +579,6 @@ const ChatModule = (() => {
     } else {
       messageQueue.push(message);
 
-      // Intentar reconectar
       if (!isConnected) {
         initWebSocket();
       }
@@ -617,13 +588,11 @@ const ChatModule = (() => {
       c => c._id === currentConversationId
     );
     if (conversation) {
-      // Comprobamos si el mensaje ya está presente en la conversación
       const existingMessage = conversation.messages.find(
         msg => msg.text === text && msg.timestamp === message.timestamp
       );
 
       if (!existingMessage) {
-        // Creamos un nuevo objeto para simular el nuevo mensaje solo si no existe
         const fakeMessage = {
           _id: 'local-temp-id',
           sender: currentUser._id,
@@ -632,19 +601,16 @@ const ChatModule = (() => {
           read: false
         };
 
-        // Actualizamos la conversación con el nuevo mensaje
         updateConversationWithNewMessage(currentConversationId, fakeMessage);
       }
     }
 
-    // Limpiar el campo de entrada
     const messageInput = document.getElementById('message-input');
     if (messageInput) {
       messageInput.value = '';
     }
   };
 
-  // Otras funciones necesarias...
   const updateChatHeader = conversationId => {
     const conversation = conversations.find(c => c._id === conversationId);
     if (!conversation) return;
@@ -695,13 +661,11 @@ const ChatModule = (() => {
   };
 
   const fetchMessages = conversationId => {
-    // Limpiar mensajes anteriores
     const messagesContainer = document.getElementById('chat-messages');
     if (messagesContainer) {
       messagesContainer.innerHTML = '';
     }
 
-    // Mostrar indicador de carga
     if (messagesContainer) {
       messagesContainer.innerHTML =
         '<div class="loading-messages">Cargando mensajes...</div>';
@@ -715,8 +679,6 @@ const ChatModule = (() => {
       }
       return;
     }
-
-    // Solicitar mensajes al servidor
 
     fetch(`${API_URL}/chat/messages/${conversationId}`, {
       headers: {
@@ -734,7 +696,6 @@ const ChatModule = (() => {
           messagesContainer.innerHTML = '';
         }
 
-        // Mostrar mensajes
         messages.forEach(message => {
           displayMessage({
             id: message._id,
@@ -748,12 +709,10 @@ const ChatModule = (() => {
           });
         });
 
-        // Desplazar al último mensaje
         if (messagesContainer) {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Marcar mensajes como leídos
         markMessagesAsRead(
           conversationId,
           messages.filter(m => !m.read && m.sender._id !== currentUser._id)
@@ -776,10 +735,8 @@ const ChatModule = (() => {
   };
 
   const updateConversationWithNewMessage = (conversationId, message) => {
-    // Buscar la conversación existente
     let conversation = conversations.find(c => c._id === conversationId);
 
-    // Si no existe la conversación, agregarla
     if (!conversation) {
       conversation = {
         _id: conversationId,
@@ -789,17 +746,14 @@ const ChatModule = (() => {
       conversations.push(conversation);
     }
 
-    // Actualizar el último mensaje de la conversación
     conversation.lastMessage = message;
 
-    // Reordenar las conversaciones para que la más reciente esté al principio
     conversations.sort((a, b) => {
       const dateA = new Date(a.lastMessage?.createdAt || 0);
       const dateB = new Date(b.lastMessage?.createdAt || 0);
       return dateB - dateA;
     });
-
-    // Volver a renderizar las conversaciones
+    
     renderUsersWithConversations(conversations);
   };
 
@@ -872,7 +826,6 @@ const ChatModule = (() => {
       });
     });
 
-    // Actualizar UI
     document.querySelectorAll('.chat-contact').forEach(contact => {
       const conversationId = contact.dataset.conversationId;
       if (!conversationId) return;
@@ -886,7 +839,6 @@ const ChatModule = (() => {
       if (!otherParticipant) return;
     });
 
-    // Actualizar encabezado si es la conversación actual
     if (currentConversationId) {
       updateChatHeader(currentConversationId);
     }
@@ -895,7 +847,6 @@ const ChatModule = (() => {
   const updateMessagesReadStatus = data => {
     const { conversationId, messageIds } = data;
 
-    // Actualizar UI para mostrar mensajes como leídos
     messageIds.forEach(messageId => {
       const messageElement = document.querySelector(
         `.message[data-message-id="${messageId}"]`
@@ -927,14 +878,12 @@ const ChatModule = (() => {
     }
   };
 
-  // Inicializar el módulo
   const init = () => {
     if (!authToken) {
       console.error('No hay token de autenticación');
       return;
     }
 
-    // Primero obtener información del usuario actual
     fetchCurrentUser()
       .then(userData => {
         if (!userData || !userData.data || !userData.data.user) {
@@ -943,13 +892,10 @@ const ChatModule = (() => {
 
         currentUser = userData.data.user;
 
-        // Cargar usuarios
         loadUsers();
 
-        // Inicializar WebSocket con el token de autenticación
         initWebSocket();
 
-        // Configurar eventos de la interfaz
         setupEventListeners();
       })
       .catch(error => {
@@ -992,7 +938,6 @@ const ChatModule = (() => {
 
         usersContainer.innerHTML = '';
 
-        // Filtrar para asegurarse de que el usuario actual no aparezca
         const filteredUsers = users.filter(
           user => user._id !== currentUser._id
         );
@@ -1038,7 +983,6 @@ const ChatModule = (() => {
       });
   };
 
-  // Manejar cierre de la página
   window.addEventListener('beforeunload', () => {
     if (isConnected && socket && socket.readyState === WebSocket.OPEN) {
       socket.send(
@@ -1053,13 +997,11 @@ const ChatModule = (() => {
     }
   });
 
-  // API pública
   return {
     init: init
   };
 })();
 
-// Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', ChatModule.init);
 
 const getCurrentUser = async () => {
@@ -1074,12 +1016,9 @@ const getCurrentUser = async () => {
 const handleContactClick = () => {
   const chatContainer = document.getElementById('chat-container');
 
-  // Verifica si estamos en la versión móvil (ancho máximo de 768px)
   if (isMobileView()) {
-    // Aplica la transformación
     chatContainer.style.transform = 'translateX(-50%)';
 
-    // Opcional: Puedes añadir una clase para manejar la transición en CSS
     chatContainer.classList.add('chat-container-mobile-active');
   }
 };
