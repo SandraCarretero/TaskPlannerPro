@@ -636,7 +636,7 @@ const API_URL = 'https://taskplannerpro-api.onrender.com/api'
     const conversation = conversations.find(c => c._id === conversationId);
     if (!conversation) return;
 
-    const chatContainer = document.getElementById('chat-container');
+    const chatContainer = document.getElementById('contacts-container');
 
     const headerElement = document.getElementById('chat-header');
     if (!headerElement) return;
@@ -673,7 +673,7 @@ const API_URL = 'https://taskplannerpro-api.onrender.com/api'
       if (isMobileView()) {
         const closeIcon = headerElement.querySelector('.fa-xmark');
         closeIcon?.addEventListener('click', () => {
-          const chatContainer = document.getElementById('chat-container');
+          const chatContainer = document.getElementById('contacts-container');
           // Al hacer click, regresar panel al 0%
           chatContainer.style.transform = 'translateX(0%)';
           chatContainer.classList.remove('chat-container-mobile-active');
@@ -1057,13 +1057,13 @@ const getCurrentUser = async () => {
 };
 
 const handleContactClick = () => {
-  const chatContainer = document.getElementById('chat-container');
-
+  const chatContainer = document.getElementById('contacts-container');
+  
   // Verifica si estamos en la versión móvil (ancho máximo de 768px)
   if (isMobileView()) {
     // Aplica la transformación
     chatContainer.style.transform = 'translateX(-50%)';
-
+    
     // Opcional: Puedes añadir una clase para manejar la transición en CSS
     chatContainer.classList.add('chat-container-mobile-active');
   }
@@ -1071,10 +1071,8 @@ const handleContactClick = () => {
 
 const isMobileView = () => window.innerWidth <= 768;
 
-// Opcional: Manejar el caso de volver al estado original (si es necesario)
-// Por ejemplo, podrías querer revertir la transformación al cambiar la orientación
-// o al redimensionar la ventana por encima de 768px.
 window.addEventListener('resize', () => {
+  const chatContainer = document.getElementById('contacts-container');
   if (window.innerWidth > 768) {
     chatContainer.style.transform = 'translateX(0)';
     chatContainer.classList.remove('chat-container-mobile-active');
