@@ -1,14 +1,11 @@
 import { loadCurrentWeather } from './weather.js';
 import { fetchCurrentUser, updateUIForUser } from './utils/getUser.js';
 
-// Variables globales
 let events = [];
 let currentUser = null;
 
-// URL base para la API
 const API_URL = 'https://taskplannerpro-api.onrender.com/api';
 
-// Elementos DOM
 const eventsContainer = document.getElementById('events-container');
 const modal = document.getElementById('event-modal');
 const deleteModal = document.getElementById('delete-modal');
@@ -21,21 +18,16 @@ const cancelDeleteBtn = document.getElementById('cancel-delete');
 const roleFilterBtn = document.getElementById('role-filter-btn');
 const roleOptions = document.getElementById('role-options');
 
-// Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', async () => {
-  // Verificar si hay un token en localStorage
   const token = localStorage.getItem('token');
   if (!token) {
-    // Redirigir a la página de login si no hay token
     window.location.href = 'login.html';
     return;
   }
 
   try {
-    // Obtener información del usuario actual
     await getCurrentUser();
 
-    // Cargar eventos
     await loadEvents();
 
     loadCurrentWeather('Madrid');
@@ -285,7 +277,6 @@ const createEventElement = event => {
   eventDescription.textContent =
     capitalizeFirstLetter(event.description) || 'Sin descripción';
 
-  // Footer (opcional: para añadir etiquetas u otros detalles en el futuro)
   const eventFooter = document.createElement('div');
   eventFooter.classList.add('event-footer');
   eventFooter.appendChild(eventDate);
@@ -647,7 +638,6 @@ const setupEventListeners = () => {
     .classList.add('active');
 };
 
-// Funciones de utilidad
 
 // Formatear fecha y hora para input type="datetime-local"
 const formatDateTimeForInput = dateString => {
