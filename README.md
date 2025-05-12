@@ -1,102 +1,79 @@
 # 🗂️ Flowtask
 
-![Imagen del proyecto](https://github.com/SandraCarretero/TaskPlanner/blob/main/img/readme/flowtask_landing.png)
-
+![Imagen del proyecto](https://github.com/SandraCarretero/TaskPlannerPro/blob/main/img/readme/flowtask_landing.png)
 
 ## Descripción 📑
 
-**Flowtask** es una aplicación web para gestionar tus tareas de forma visual, organizada y eficaz. Está diseñada con JavaScript Vanilla, aplicando principios SOLID y buenas prácticas de estructura y modularización del código.
+**Flowtask** es una aplicación web full-stack para la gestión de tareas, eventos y comunicación entre usuarios. Está construida con JavaScript Vanilla y Node.js, siguiendo principios SOLID, con una estructura modular y escalable tanto en frontend como en backend.
 
-🔗 **[Ver demo online](https://sandracarretero.github.io/TaskPlanner/html/login.html)**
+🔗 **[Ver demo online](https://taskplannerpro-vcq0.onrender.com/)**
 
 ---
 
 ## ✨ Funcionalidades principales
 
-- 🔐 Registro e inicio de sesión de usuarios.
-- 👤 Sección de perfil para editar tus datos personales.
-- 📝 Crear, editar y eliminar tareas.
-- 📅 Las tareas incluyen:
-  - Título
-  - Descripción
-  - Fecha
-  - Estado (incompleta, en proceso, finalizada)
-  - Prioridad
-  - Etiquetas
-- 💾 **Tareas y usuarios almacenados en LocalStorage** para mantener los datos sin necesidad de servidor.
-- 🌤️ Muestra el clima del día actual y del día de finalización de cada tarea usando la API de **OpenWeather**.
-- 🗞️ Muestra noticias actualizadas en una sección lateral utilizando la API de **GNews**.
-- 🧠 Vista en tres columnas:
-  - Izquierda: tareas incompletas
-  - Centro: tareas en proceso
-  - Derecha: tareas finalizadas
-- 🔍 Filtros por estado.
-- 📱 Diseño responsive con uso de Flexbox y Grid.
-- ✅ Aplicación de principios **SOLID** en la organización del código.
+👥 Autenticación y usuarios
+Registro e inicio de sesión
+
+- Gestión de perfil: nombre, avatar, contraseña
+- Cierre de sesión y eliminación de cuenta
+- Vista de estadísticas personales (eventos, tareas por estado)
+
+📝 Tareas
+
+- Crear, editar, eliminar tareas
+- Cambiar estado: incompleta, en proceso, finalizada
+- Cada tarea muestra título, descripción, fecha de inicio, tags y prioridad
+- Vista por columnas: pendiente, en progreso, finalizadas
+- Filtros por estado y proyecto
+
+📅 Eventos
+
+- Crear, editar, eliminar eventos
+- Cada evento muestra título, descripción, fecha de inicio y fin
+
+💬 Chat global
+
+- Conversación en tiempo real entre todos los usuarios
+
+👑 Administrador
+
+- Puede ver todas las tareas del sistema
+- Accede a las tareas con iniciales de usuarios asignados
+- Control completo sobre tareas y eventos del resto de usuarios
+
+📊 Dashboard personal
+
+- Muestra tareas por estado y total de eventos asignados
 
 ---
-
-## 📁 Estructura del proyecto
-
-<pre>
-TaskPlanner/
-├── css/
-│   ├── login.css
-│   ├── profile.css
-│   ├── sidebar.css
-│   └── style.css
-├── html/
-│   ├── login.html
-│   └── profile.html
-├── img/
-│   └── icon.svg
-├── js/
-│   ├── services/
-│   │   ├── authService.js
-│   │   ├── newsService.js
-│   │   └── weatherService.js
-│   ├── utils/
-│   │   ├── domUtils.js
-│   │   ├── formUtils.js
-│   │   ├── taskCounter.js
-│   │   └── taskStorage.js
-│   ├── login.js
-│   ├── main.js
-│   ├── news.js
-│   ├── profile.js
-│   └── weather.js
-└── index.html
-</pre>
 
 ## ¿Qué he aprendido en este proyecto? 🙇🏻
 
 Este proyecto me ha permitido aplicar y consolidar muchos de los conocimientos adquiridos durante mi formación, entre ellos:
 
-🧱 Diseñar y desarrollar una interfaz dinámica y responsive con HTML, CSS y JavaScript Vanilla, sin depender de frameworks.
-
-🧠 Aplicar los principios SOLID para escribir un código más limpio, mantenible y escalable.
-
-🧩 Trabajar con el DOM de forma eficiente, creando y actualizando elementos dinámicamente.
-
-💾 Usar el LocalStorage para la gestión y persistencia de datos sin servidor.
-
-🌐 Integrar APIs externa para mostrar contenido en tiempo real.
-
-🔐 Crear un sistema básico de autenticación de usuarios, incluyendo registro, login y edición de perfil.
-
-📂 Organizar el proyecto de forma modular, separando lógica, servicios, vistas y estilos.
-
-🧑‍💻 Enfocarme en una buena experiencia de usuario (UX) a través de filtros, organización visual y diseño adaptable.
+✅ Separar responsabilidades entre frontend y backend
+✅ Diseñar una API RESTful y consumirla desde el cliente
+✅ Aplicar principios SOLID y buenas prácticas de arquitectura
+✅ Trabajar con control de accesos por roles (usuario vs administrador)
+✅ Usar WebSockets para comunicación en tiempo real
+✅ Integrar APIs externas para enriquecer la experiencia del usuario
+✅ Modularizar todo el código para facilitar mantenimiento y escalabilidad
 
 ## 🛠️ Tecnologías utilizadas
 
 [![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://es.wikipedia.org/wiki/HTML5)
 [![CSS](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://es.wikipedia.org/wiki/CSS)
 [![JS](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://es.wikipedia.org/wiki/JavaScript)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![WebSocket](https://img.shields.io/badge/WebSocket-35495E?style=for-the-badge&logo=websockets&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+![Multer](https://img.shields.io/badge/Multer-00BFFF?style=for-the-badge)
+![Nodemailer](https://img.shields.io/badge/Nodemailer-3466A6?style=for-the-badge)
 
 - [OpenWeather API](https://openweathermap.org/)
 - [GNews API](https://gnews.io/)
-- **LocalStorage** para persistencia de tareas y usuarios
 
 ---
 
@@ -110,7 +87,21 @@ Este proyecto me ha permitido aplicar y consolidar muchos de los conocimientos a
 
 ## Instalación
 
-Este proyecto no necesita de instalación. Simplemente abre la carpeta o haz doble click en el .html
+🔧 Requisitos
+
+- Node.js instalado
+- MongoDB/PostgreSQL en funcionamiento (según tu proyecto)
+- Variables de entorno configuradas
+
+🖥️ Iniciar Backend
+cd backend
+npm install
+node server.js
+
+💻 Iniciar Frontend
+cd frontend
+npm install
+npm run dev
 
 ## Licencia 📄
 
