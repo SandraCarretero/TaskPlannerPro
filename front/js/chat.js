@@ -1074,7 +1074,7 @@ const getCurrentUser = async () => {
 };
 
 const handleContactClick = () => {
-  const chatContainer = document.getElementById('contacts-container');
+  const chatContainer = document.getElementById('chat-container');
 
   // Verifica si estamos en la versión móvil (ancho máximo de 768px)
   if (isMobileView()) {
@@ -1089,7 +1089,7 @@ const handleContactClick = () => {
 const isMobileView = () => window.innerWidth <= 768;
 
 window.addEventListener('resize', () => {
-  const chatContainer = document.getElementById('contacts-container');
+  const chatContainer = document.getElementById('chat-container');
   if (window.innerWidth > 768) {
     chatContainer.style.transform = 'translateX(0)';
     chatContainer.classList.remove('chat-container-mobile-active');
