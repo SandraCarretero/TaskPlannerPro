@@ -100,11 +100,6 @@ Este proyecto me ha permitido aplicar y consolidar muchos de los conocimientos a
 - npm install
 - node server.js
 
-💻 Iniciar Frontend
-- cd frontend
-- npm install
-- npm run dev
-
 ## Licencia 📄
 
 MIT Public License v3.0
